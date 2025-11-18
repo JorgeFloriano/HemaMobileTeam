@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "Hema Mobile Team",
+    "slug": "HemaMobileTeam",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo_hema_splash.png",
+    "scheme": "hemamobile",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/logo_hema3.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "userInterfaceStyle": "light",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.HemaMobileTeam"
+    },
+    "android": {
+      "userInterfaceStyle": "light",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo_icon.png",
+        "backgroundColor": "#270984ff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.HemaMobileTeam"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/logo2_hema.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/logo_hema.png",
+          "imageWidth": 150,
+          "imageHeight": 150,
+          "resizeMode": "contain",
+          "backgroundColor": "#270984ff",
+          "dark": {
+            "backgroundColor": "#270984ff"
+          }
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {}
+    }
+  }
+}
