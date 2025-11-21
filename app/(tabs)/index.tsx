@@ -86,12 +86,12 @@ const OrdersScreen = () => {
       }
 
       setError(null);
-      const response = await api.get<OrdersResponse>("/orders");
+      const response = await api.get<OrdersResponse>("/orders_team");
       setOrders(response.data.orders);
     } catch (err) {
-      const errorMessage = "Failed to load orders";
+      const errorMessage = "Falha ao carregar solicitações de assistência técnica";
       setError(errorMessage);
-      Alert.alert("Error", errorMessage);
+      Alert.alert("Erro", errorMessage);
       console.error("Error loading orders:", err);
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ const OrdersScreen = () => {
     if (Boolean(user?.canCreateSat) !== true) {
       Alert.alert(
         "Acesso negado",
-        "Sem permissão para criar solicitações de serviço."
+        "Sem permissão para criar solicitações de assistência técnica."
       );
       return;
     }
@@ -134,7 +134,7 @@ const OrdersScreen = () => {
     } else {
       Alert.alert(
         "Acesso negado",
-        "Sem permissão para visualizar os detalhes da solicitação de serviço."
+        "Sem permissão para visualizar os detalhes da solicitação de assistência técnica."
       );
     }
   };
@@ -142,7 +142,7 @@ const OrdersScreen = () => {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyStateText}>No orders found</Text>
+      <Text style={styles.emptyStateText}>Solicitações de assistência técnica não encontradas</Text>
       <Button
         title="Create First Order"
         onPress={handleCreateOrder}
@@ -169,7 +169,7 @@ const OrdersScreen = () => {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading orders...</Text>
+        <Text style={styles.loadingText}>Carregando solicitações...</Text>
       </View>
     );
   }
@@ -192,7 +192,7 @@ const OrdersScreen = () => {
           )}
         </View>
         <Text style={styles.subtitle}>
-          Gerenciamento de Solicitações de Serviço (SAT)
+          Solicitações de Assistência Técnica (SAT)
         </Text>
       </View>
 

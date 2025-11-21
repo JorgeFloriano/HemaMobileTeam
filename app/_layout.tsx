@@ -12,7 +12,7 @@ function RootLayoutContent() {
   // FIXED: Proper authentication check
   useEffect(() => {
     if (!isLoading) {
-      const isAuthenticated = user?.id && user?.isClient;
+      const isAuthenticated = user?.id;
       if (!isAuthenticated && !pathname.includes("/login")) {
         router.replace("/login");
       }
@@ -27,7 +27,7 @@ function RootLayoutContent() {
     );
   }
 
-  const isAuthenticated = user && user?.id && user?.isClient;
+  const isAuthenticated = user?.id;
 
   return (
     <>

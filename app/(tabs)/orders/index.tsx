@@ -89,7 +89,7 @@ const OrdersScreen = () => {
       const response = await api.get<OrdersResponse>("/orders");
       setOrders(response.data.orders);
     } catch (err) {
-      const errorMessage = "Falha ao carregar solicitações de serviço";
+      const errorMessage = "Falha ao carregar solicitações de assistência técnica";
       setError(errorMessage);
       Alert.alert("Erro", errorMessage);
       console.error("Error loading orders:", err);
@@ -114,7 +114,7 @@ const OrdersScreen = () => {
     if (Boolean(user?.canCreateSat) !== true) {
       Alert.alert(
         "Acesso negado",
-        "Sem permissão para criar solicitações de serviço."
+        "Sem permissão para criar solicitações de assistência técnica."
       );
       return;
     }
@@ -134,7 +134,7 @@ const OrdersScreen = () => {
     } else {
       Alert.alert(
         "Acesso negado",
-        "Sem permissão para visualizar os detalhes da solicitação de serviço."
+        "Sem permissão para visualizar os detalhes da solicitação de assistência técnica."
       );
     }
   };
@@ -142,7 +142,7 @@ const OrdersScreen = () => {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyStateText}>Solicitações de serviço não encontradas</Text>
+      <Text style={styles.emptyStateText}>Solicitações de assistência técnica não encontradas</Text>
       <Button
         title="Create First Order"
         onPress={handleCreateOrder}
@@ -192,7 +192,7 @@ const OrdersScreen = () => {
           )}
         </View>
         <Text style={styles.subtitle}>
-          Gerenciamento de Solicitações de Serviço (SAT)
+          Solicitações de Assistência Técnica (SAT)
         </Text>
       </View>
 

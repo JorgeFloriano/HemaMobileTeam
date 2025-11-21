@@ -25,7 +25,7 @@ export const authService = {
         // Don't log password for security
       });
 
-      const response = await api.post("/auth/login", credentials);
+      const response = await api.post("/auth/login_team", credentials);
 
       // Validate response structure
       if (!response.data.token || !response.data.user) {

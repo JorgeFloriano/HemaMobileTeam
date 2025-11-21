@@ -48,7 +48,7 @@ const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
 
   // FIXED: Move logout logic to useEffect
   useEffect(() => {
-    if (!user || !user.id || !user.isClient) {
+    if (!user || !user.id) {
       const performLogout = async () => {
         await logout();
         router.replace("/login");

@@ -9,7 +9,6 @@ interface User {
   surname?: string;
   email?: string;
   function?: string;
-  isClient?: boolean;
   clientId?: string;
   isAdmin?: boolean;
   canCreateSat?: boolean;
