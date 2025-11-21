@@ -44,7 +44,7 @@ const CreateOrderScreen = () => {
     try {
       console.log("🔄 Loading order types...");
 
-      const response = await api.get("/orders/create");
+      const response = await api.get("/technician/orders/create");
 
       // Check if response has error
       if (response.data.error) {
@@ -101,7 +101,7 @@ const CreateOrderScreen = () => {
 
     try {
       // Laravel API endpoint, automatcally identifies the store function trough method as POST
-      const response = await api.post("/orders", formData);
+      const response = await api.post("/technician/orders/", formData);
 
       if (response.data.success) {
         Alert.alert("Sucesso", response.data.message, [

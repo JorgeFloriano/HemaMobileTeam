@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Order } from "@/app/(tabs)/orders";
+import { Order } from "@/app/(tabs)/order-notes";
 
 interface OrderCardProps {
   order: Order;
@@ -43,7 +43,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onPress }) => {
         <Text style={styles.serviceType} numberOfLines={1}>
           {order.id} - {order.type.description}
         </Text>
-       
+
         <View
           style={[
             styles.statusBadge,

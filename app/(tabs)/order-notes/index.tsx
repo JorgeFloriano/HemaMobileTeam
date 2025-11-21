@@ -18,6 +18,10 @@ import { useAuth } from "@/src/contexts/AuthContext";
 export interface Order {
   id: string;
   order_type_id: string;
+  client :{
+    id: string;
+    name: string;
+  }
   tec_id?: string | null;
   req_descr: string;
   req_name: string;
@@ -86,10 +90,11 @@ const OrdersScreen = () => {
       }
 
       setError(null);
-      const response = await api.get<OrdersResponse>("/orders");
+      const response = await api.get<OrdersResponse>("/technician/orders");
       setOrders(response.data.orders);
     } catch (err) {
-      const errorMessage = "Falha ao carregar solicitações de assistência técnica";
+      const errorMessage =
+        "Falha ao carregar solicitações de assistência técnica";
       setError(errorMessage);
       Alert.alert("Erro", errorMessage);
       console.error("Error loading orders:", err);
@@ -109,18 +114,6 @@ const OrdersScreen = () => {
     loadOrders(true);
   };
 
-  // Navigate to create order
-  const handleCreateOrder = () => {
-    if (Boolean(user?.canCreateSat) !== true) {
-      Alert.alert(
-        "Acesso negado",
-        "Sem permissão para criar solicitações de assistência técnica."
-      );
-      return;
-    }
-    router.push("/(tabs)/orders/order-create");
-  };
-
   // Render order item
   const renderOrderItem = ({ item }: { item: Order }) => (
     <OrderCard order={item} onPress={() => handleOrderPress(item)} />
@@ -128,27 +121,20 @@ const OrdersScreen = () => {
 
   // Handle order press
   const handleOrderPress = (order: Order) => {
-    //If user.canSeeSat navigate to order details
-    if (user?.canSeeSat) {
-      router.push(`/orders/${order.id}`);
+    // If order is finished, navigate to order details, otherwise navigate to fill form
+    if (order.finished) {
+      router.push(`/order-notes/${order.id}/order-notes-show`);
     } else {
-      Alert.alert(
-        "Acesso negado",
-        "Sem permissão para visualizar os detalhes da solicitação de assistência técnica."
-      );
+      router.push(`/order-notes/${order.id}/order-notes-create`);
     }
   };
 
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyStateText}>Solicitações de assistência técnica não encontradas</Text>
-      <Button
-        title="Create First Order"
-        onPress={handleCreateOrder}
-        variant="primary"
-        style={styles.emptyStateButton}
-      />
+      <Text style={styles.emptyStateText}>
+        Solicitações de assistência técnica não encontradas
+      </Text>
     </View>
   );
 
@@ -181,16 +167,7 @@ const OrdersScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.title}>
-          <Text style={styles.welcome}>Solicitações</Text>
-          {Boolean(user?.canCreateSat) === true && (
-            <Button
-              onPress={handleCreateOrder}
-              title="Criar"
-              variant="primary"
-            />
-          )}
-        </View>
+        <Text style={styles.welcome}>Programação</Text>
         <Text style={styles.subtitle}>
           Solicitações de Assistência Técnica (SAT)
         </Text>

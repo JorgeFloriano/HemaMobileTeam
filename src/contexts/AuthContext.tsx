@@ -9,10 +9,7 @@ interface User {
   surname?: string;
   email?: string;
   function?: string;
-  clientId?: string;
   isAdmin?: boolean;
-  canCreateSat?: boolean;
-  canSeeSat?: boolean;
 }
 
 interface AuthContextType {
@@ -84,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('Usuário autenticado deve ser usado dentro de um AuthProvider');
   }
   return context;
 };

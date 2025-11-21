@@ -37,10 +37,10 @@ const BottomTabBar: React.FC = () => {
     label: "Home",
   },
   {
-    name: "orders",
-    href: "/orders",
+    name: "order-notes",
+    href: "/order-notes",
     icon: "list",
-    label: "Ordens",
+    label: "Programação",
   },
   {
     name: "user-edit",
