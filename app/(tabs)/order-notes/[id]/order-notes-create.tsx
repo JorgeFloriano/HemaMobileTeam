@@ -1,8 +1,18 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Alert, StyleSheet, Text, Keyboard } from "react-native";
+import {
+  View,
+  Alert,
+  StyleSheet,
+  Text,
+  Keyboard,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import api from "@/src/services/api";
 import TextInput from "@/src/components/TextInput";
+import DateInput from "@/src/components/DateInput";
+import TimeInput from "@/src/components/TimeInput";
 import Button from "@/src/components/Button";
 import OptionSelector from "@/src/components/OptionSelector";
 import KeyboardAvoindingContainer from "@/src/components/KeyboardAvoidingContainer";
@@ -12,59 +22,165 @@ interface Type {
   description: string;
 }
 
-interface FormData {
-  note_type_id: string;
-  sector: string;
+interface Defect {
+  id: string;
+  description: string;
+}
+
+interface Cause {
+  id: string;
+  description: string;
+}
+
+interface Solution {
+  id: string;
+  description: string;
+}
+
+interface Material {
+  id: string;
+  description: string;
+}
+
+interface Tec {
+  id: string;
+  user_id: string;
+  user: {
+    id: string;
+    name: string;
+    surname: string;
+  };
+}
+
+interface Order {
+  id: string;
+  client: {
+    id: string;
+    name: string;
+    unit: string;
+    address: string;
+    contact: string;
+  };
+  type: {
+    id: string;
+    description: string;
+  };
+  tec: {
+    id: string;
+    user_id: string;
+  } | null;
   req_name: string;
+  sector: string;
+  user: {
+    name: string;
+  };
+  req_date: string;
+  req_time: string;
   req_descr: string;
   equipment: string;
 }
 
+interface FormData {
+  order_id: string;
+  equip_mod: string;
+  equip_id: string;
+  equip_type: string;
+  note_type_id: string;
+  defect_id: string;
+  cause_id: string;
+  solution_id: string;
+  services: string;
+  date: string;
+  go_start: string;
+  go_end: string;
+  start: string;
+  end: string;
+  back_start: string;
+  back_end: string;
+  first_tec: string;
+  second_tec: string;
+  finished: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  order: Order;
+  tecs: Tec[];
+  types: Type[];
+  defects: Defect[];
+  causes: Cause[];
+  solutions: Solution[];
+  materials: Material[];
+}
+
 const CreateOrderNoteScreen = () => {
   const router = useRouter();
-  const [types, setTypes] = useState<Type[]>([]);
-  const [loading, setLoading] = useState(false);
   const { id } = useLocalSearchParams();
-  const [formData, setFormData] = useState({
+
+  const [types, setTypes] = useState<Type[]>([]);
+  const [defects, setDefects] = useState<Defect[]>([]);
+  const [causes, setCauses] = useState<Cause[]>([]);
+  const [solutions, setSolutions] = useState<Solution[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [tecs, setTecs] = useState<Tec[]>([]);
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(true);
+
+  const [formData, setFormData] = useState<FormData>({
+    order_id: Array.isArray(id) ? id[0] : id || "",
+    equip_mod: "",
+    equip_id: "",
+    equip_type: "",
     note_type_id: "",
-    sector: "",
-    req_name: "",
-    // req_date: new Date().toLocaleDateString("pt-BR"),
-    // req_time: new Date().toLocaleTimeString("pt-BR", {
-    //   hour: "2-digit",
-    //   minute: "2-digit",
-    //   hour12: false,
-    // }),
-    req_descr: "",
-    equipment: "",
+    defect_id: "",
+    cause_id: "",
+    solution_id: "",
+    services: "",
+    date: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    go_start: "",
+    go_end: "",
+    start: new Date().toTimeString().slice(0, 5), // HH:MM
+    end: new Date().toTimeString().slice(0, 5), // HH:MM
+    back_start: "",
+    back_end: "",
+    first_tec: "",
+    second_tec: "0",
+    finished: "",
   });
 
-  // FIXED: Added useCallback to prevent infinite re-renders
-  const loadOrderTypes = useCallback(async () => {
+  // Load all data with single API call
+  const loadNoteCreationData = useCallback(async () => {
     try {
-      console.log("🔄 Loading order types...");
+      setFormLoading(true);
 
-      const response = await api.get("/technician/orders/create");
+      console.log(`🔄 Loading note creation data for order ${id}...`);
 
-      // FIXED: Better data handling
-      const typesData = response.data.types || response.data;
+      // SINGLE API CALL - gets all data needed
+      const response = await api.get<ApiResponse>(`/notes/create/${id}`);
 
-      if (Array.isArray(typesData)) {
-        setTypes(typesData);
-        console.log(`✅ Loaded ${typesData.length} order types`);
+      if (response.data.success) {
+        setOrder(response.data.order);
+        setTecs(response.data.tecs);
+        setTypes(response.data.types);
+        setDefects(response.data.defects);
+        setCauses(response.data.causes);
+        setSolutions(response.data.solutions);
+        setMaterials(response.data.materials);
+
+        console.log(
+          `✅ Loaded data: ${response.data.types.length} types, ${response.data.tecs.length} techs, etc.`
+        );
       } else {
-        console.warn("⚠️ Unexpected response format:", response.data);
-        setTypes([]);
+        throw new Error("Failed to load note creation data");
       }
     } catch (error: any) {
-      console.error("❌ Error loading types:", error);
+      console.error("❌ Error loading note creation data:", error);
 
-      let errorMessage = "Falha ao carregar tipos de serviços";
+      let errorMessage = "Falha ao carregar dados do atendimento";
 
       if (error.response?.status === 401) {
         errorMessage = "Sessão expirada. Faça login novamente.";
-        // Optional: Redirect to login
-        // router.push('/login');
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
@@ -72,23 +188,62 @@ const CreateOrderNoteScreen = () => {
       Alert.alert("Erro", errorMessage);
       router.back();
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
-  }, [router]);
+  }, [id, router]);
 
-  // FIXED: Added proper useEffect dependency array
   useEffect(() => {
-    loadOrderTypes();
-  }, [loadOrderTypes]); // Now loadOrderTypes is stable due to useCallback
+    loadNoteCreationData();
+  }, [loadNoteCreationData]);
 
   const handleSubmit = async () => {
-    if (!formData.note_type_id) {
-      Alert.alert("Erro", "Por favor selecione um tipo de serviço");
+    // Validation
+    if (!formData.equip_mod) {
+      Alert.alert("Erro", "Por favor informe o modelo do equipamento");
       return;
     }
-
-    if (!formData.req_descr) {
-      Alert.alert("Erro", "Por favor descreva o serviço solicitado");
+    if (!formData.equip_id) {
+      Alert.alert("Erro", "Por favor informe o número de identificação");
+      return;
+    }
+    if (!formData.equip_type) {
+      Alert.alert("Erro", "Por favor informe o tipo do equipamento");
+      return;
+    }
+    if (!formData.note_type_id) {
+      Alert.alert("Erro", "Por favor selecione o tipo de atendimento");
+      return;
+    }
+    if (!formData.defect_id) {
+      Alert.alert("Erro", "Por favor selecione o defeito");
+      return;
+    }
+    if (!formData.cause_id) {
+      Alert.alert("Erro", "Por favor selecione a causa");
+      return;
+    }
+    if (!formData.solution_id) {
+      Alert.alert("Erro", "Por favor selecione a solução");
+      return;
+    }
+    if (!formData.services) {
+      Alert.alert("Erro", "Por favor descreva os serviços executados");
+      return;
+    }
+    if (!formData.date) {
+      Alert.alert("Erro", "Por favor informe a data do atendimento");
+      return;
+    }
+    if (!formData.start || !formData.end) {
+      Alert.alert("Erro", "Por favor informe horário de início e término");
+      return;
+    }
+    if (!formData.first_tec) {
+      Alert.alert("Erro", "Por favor selecione o técnico principal");
+      return;
+    }
+    if (!formData.finished) {
+      Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
       return;
     }
 
@@ -96,29 +251,26 @@ const CreateOrderNoteScreen = () => {
     Keyboard.dismiss();
 
     try {
-      // Laravel API endpoint, automatcally identifies the store function trough method as POST
-      const response = await api.post("/technician/orders/", formData);
+      const response = await api.post("/notes", formData);
 
       if (response.data.success) {
         Alert.alert("Sucesso", response.data.message, [
           {
             text: "OK",
             onPress: () => {
-              resetForm();
-              router.push("/"); // Go back to previous screen
+              router.push("/");
             },
           },
         ]);
       } else {
         Alert.alert(
           "Erro",
-          response.data.message || "Falha ao criar ordem de serviço"
+          response.data.message || "Falha ao criar atendimento"
         );
       }
     } catch (error: any) {
-      console.error("Error creating order:", error);
+      console.error("Error creating note:", error);
 
-      // Handle validation errors from Laravel
       if (error.response?.data?.errors) {
         const errors = error.response.data.errors;
         const firstError = Object.values(errors)[0] as string[];
@@ -126,7 +278,7 @@ const CreateOrderNoteScreen = () => {
       } else {
         Alert.alert(
           "Erro",
-          error.response?.data?.message || "Falha ao criar ordem de serviço"
+          error.response?.data?.message || "Falha ao criar atendimento"
         );
       }
     } finally {
@@ -134,113 +286,271 @@ const CreateOrderNoteScreen = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      note_type_id: "",
-      sector: "",
-      req_name: "",
-      // req_date: new Date().toLocaleDateString("pt-BR"),
-      // req_time: new Date().toLocaleTimeString("pt-BR", {
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      //   hour12: false,
-      // }),
-      req_descr: "",
-      equipment: "",
-    });
-  };
-
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleTypeSelect = (type: Type) => {
-    updateFormData("note_type_id", type.id);
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-BR");
   };
+
+  const formatTime = (timeString: string) => {
+    if (!timeString) return "";
+    return timeString.substring(0, 5);
+  };
+
+  if (formLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text>Carregando dados do atendimento...</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoindingContainer>
       <View style={styles.form}>
-
         <Text style={styles.welcome}>SAT nº {id}</Text>
 
+        {/* Order Information Card */}
         <View style={styles.header}>
-          <Text style={styles.headerText}>Cliente: </Text>
-          <Text style={styles.headerText}>Unidade: </Text>
-          <Text style={styles.headerText}>Endereço: </Text>
-          <Text style={styles.headerText}>Contato: </Text>
-          <Text style={styles.headerText}>Setor:</Text>
-          <Text style={styles.headerText}>Solicitante: </Text>
-          <Text style={styles.headerText}>Data e Hora: </Text>
-          <Text style={styles.headerText}>Descrição da Solicitação: </Text>
-          <Text style={styles.headerLastText}>Equipamento: </Text>
+          <Text style={styles.headerText}>Cliente: {order?.client?.name}</Text>
+          <Text style={styles.headerText}>Unidade: {order?.client?.unit}</Text>
+          <Text style={styles.headerText}>
+            Endereço: {order?.client?.address}
+          </Text>
+          <Text style={styles.headerText}>Contato: {order?.req_name}</Text>
+          <Text style={styles.headerText}>Setor: {order?.sector}</Text>
+          <Text style={styles.headerText}>
+            Solicitante: {order?.user?.name || ""}
+          </Text>
+          <Text style={styles.headerText}>
+            Data e Hora: {formatDate(order?.req_date || "")} ás{" "}
+            {formatTime(order?.req_time || "")}
+          </Text>
+          <Text style={styles.headerText}>
+            Descrição da Solicitação: {order?.req_descr}
+          </Text>
+          <Text style={styles.headerLastText}>
+            Equipamento: {order?.equipment || ""}
+          </Text>
         </View>
 
+        {/* Equipment Information */}
+        <TextInput
+          label="Modelo do Equipamento *"
+          value={formData.equip_mod}
+          onChangeText={(text) => updateFormData("equip_mod", text)}
+          placeholder="Modelo do Equipamento"
+          maxLength={20}
+        />
+
+        <TextInput
+          label="Número de Identificação *"
+          value={formData.equip_id}
+          onChangeText={(text) => updateFormData("equip_id", text)}
+          placeholder="Número de Série"
+          maxLength={20}
+        />
+
+        <TextInput
+          label="Tipo do Equipamento *"
+          value={formData.equip_type}
+          onChangeText={(text) => updateFormData("equip_type", text)}
+          placeholder="Tipo"
+          maxLength={20}
+        />
+
+        {/* Selection Fields */}
         <OptionSelector
-          label="Tipo de Serviço *"
-          placeholder="Selecione um tipo de serviço"
-          types={types}
-          selectedTypeId={formData.note_type_id}
-          onTypeSelect={handleTypeSelect}
+          label="Tipo de Atendimento *"
+          placeholder="Selecione o tipo de atendimento"
+          options={types}
+          selectedId={formData.note_type_id}
+          onSelect={(item) => updateFormData("note_type_id", item.id)}
         />
 
-        <TextInput
-          label="Setor *"
-          value={formData.sector}
-          onChangeText={(text) => updateFormData("sector", text)}
-          placeholder="Setor do atendimento"
-          maxLength={30}
-          type="text"
+        <OptionSelector
+          label="Defeito *"
+          placeholder="Selecione o defeito"
+          options={defects}
+          selectedId={formData.defect_id}
+          onSelect={(item) => updateFormData("defect_id", item.id)}
         />
 
-        {/* <View style={styles.row}>
-              <View style={styles.halfInput}>
-                <TextInput
-                  label="Data do Acionamento *"
-                  value={formData.req_date}
-                  onChangeText={(text) => updateFormData("req_date", text)}
-                  placeholder="DD/MM/AAAA"
-                  type="date"
-                />
-              </View>
+        <OptionSelector
+          label="Causa *"
+          placeholder="Selecione a causa"
+          options={causes}
+          selectedId={formData.cause_id}
+          onSelect={(item) => updateFormData("cause_id", item.id)}
+        />
 
-              <View style={styles.halfInput}>
-                <TextInput
-                  label="Hora do Acionamento *"
-                  value={formData.req_time}
-                  onChangeText={(text) => updateFormData("req_time", text)}
-                  placeholder="HH:MM"
-                  type="time"
-                />
-              </View>
-            </View> */}
+        <OptionSelector
+          label="Solução *"
+          placeholder="Selecione a solução"
+          options={solutions}
+          selectedId={formData.solution_id}
+          onSelect={(item) => updateFormData("solution_id", item.id)}
+        />
 
+        {/* Services Description */}
         <TextInput
-          label="Descrição *"
-          value={formData.req_descr}
-          onChangeText={(text) => updateFormData("req_descr", text)}
-          placeholder="Descreva a atividade a ser realizada"
+          label="Descrição dos Serviços Executados *"
+          value={formData.services}
+          onChangeText={(text) => updateFormData("services", text)}
+          placeholder="Serviços executados"
           multiline
-          numberOfLines={10}
-          maxLength={470}
-          type="text"
+          numberOfLines={4}
+          maxLength={1290}
         />
 
-        <TextInput
-          label="Equipamento"
-          value={formData.equipment}
-          onChangeText={(text) => updateFormData("equipment", text)}
-          placeholder="Informações do equipamento"
-          maxLength={70}
-          type="text"
+        {/* Date and Time Sections */}
+        <DateInput
+          label="Data do Atendimento *"
+          value={formData.date}
+          onChangeText={(text) => updateFormData("date", text)}
+          placeholder="YYYY-MM-DD"
         />
 
+        <Text style={styles.sectionTitle}>Deslocamento - Ida</Text>
+        <View style={styles.row}>
+          <View style={styles.halfInput}>
+            <TimeInput
+              label="Saída (Ida)"
+              value={formData.go_start}
+              onChangeText={(text) => updateFormData("go_start", text)}
+              placeholder="HH:MM"
+            />
+          </View>
+          <View style={styles.halfInput}>
+            <TimeInput
+              label="Chegada (Ida)"
+              value={formData.go_end}
+              onChangeText={(text) => updateFormData("go_end", text)}
+              placeholder="HH:MM"
+            />
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>Atendimento no Local</Text>
+        <View style={styles.row}>
+          <View style={styles.halfInput}>
+            <TimeInput
+              label="Início *"
+              value={formData.start}
+              onChangeText={(text) => updateFormData("start", text)}
+              placeholder="HH:MM"
+              //required
+            />
+          </View>
+          <View style={styles.halfInput}>
+            <TimeInput
+              label="Término *"
+              value={formData.end}
+              onChangeText={(text) => updateFormData("end", text)}
+              placeholder="HH:MM"
+              //required
+            />
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>Deslocamento - Volta</Text>
+        <View style={styles.row}>
+          <View style={styles.halfInput}>
+            <TimeInput
+              label="Saída (Volta)"
+              value={formData.back_start}
+              onChangeText={(text) => updateFormData("back_start", text)}
+              placeholder="HH:MM"
+            />
+          </View>
+          <View style={styles.halfInput}>
+            <TimeInput
+              label="Chegada (Volta)"
+              value={formData.back_end}
+              onChangeText={(text) => updateFormData("back_end", text)}
+              placeholder="HH:MM"
+            />
+          </View>
+        </View>
+
+        {/* Technicians Selection */}
+        <OptionSelector
+          label="Técnico 01 *"
+          placeholder="Selecione o técnico principal"
+          options={tecs.map((tec) => ({
+            id: tec.id,
+            description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
+          }))}
+          selectedId={formData.first_tec}
+          onSelect={(item) => updateFormData("first_tec", item.id)}
+        />
+
+        <OptionSelector
+          label="Técnico 02"
+          placeholder="Selecione o técnico 02"
+          options={[
+            { id: "0", description: "Selecione o Técnico 02" },
+            ...tecs.map((tec) => ({
+              id: tec.id,
+              description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
+            })),
+          ]}
+          selectedId={formData.second_tec}
+          onSelect={(item) => updateFormData("second_tec", item.id)}
+        />
+
+        {/* Finish Options */}
+        <Text style={styles.sectionTitle}>Status do Atendimento *</Text>
+        <View style={styles.radioGroup}>
+          <TouchableOpacity
+            style={styles.radioOption}
+            onPress={() => updateFormData("finished", "0")}
+          >
+            <View
+              style={[
+                styles.radio,
+                formData.finished === "0" && styles.radioSelected,
+              ]}
+            />
+            <Text style={styles.radioLabel}>
+              💾 Salvar (atendimento pendente)
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.radioOption}
+            onPress={() => updateFormData("finished", "1")}
+          >
+            <View
+              style={[
+                styles.radio,
+                formData.finished === "1" && styles.radioSelected,
+              ]}
+            />
+            <Text style={styles.radioLabel}>
+              ✅ Concluir (atendimento finalizado)
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Buttons */}
         <View style={styles.buttonGroup}>
           <Button
-            title={loading ? "Criando..." : "Confirmar"}
+            title={loading ? "Processando..." : "Confirmar"}
             onPress={handleSubmit}
             variant="primary"
             disabled={loading}
+            style={styles.confirmButton}
+          />
+
+          <Button
+            title="Voltar"
+            onPress={() => router.back()}
+            variant="secondary"
           />
         </View>
       </View>
@@ -249,10 +559,29 @@ const CreateOrderNoteScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  form: {
+    padding: 16,
+    paddingTop: 60,
+  },
+
   welcome: {
     fontSize: 24,
     fontWeight: "bold",
     paddingVertical: 16,
+    color: "#333",
+  },
+  
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
     color: "#333",
   },
 
@@ -279,21 +608,70 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  form: {
-    paddingTop: 60,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+  card: {
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: 8,
+    marginBottom: 16,
+    backgroundColor: "#fff",
   },
-
+  cardItem: {
+    padding: 12,
+    fontSize: 16,
+  },
+  bold: {
+    fontWeight: "bold",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#000",
+    marginHorizontal: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginVertical: 12,
+    color: "#333",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
   halfInput: {
     flex: 1,
     marginHorizontal: 4,
   },
-  buttonGroup: {
+  radioGroup: {
+    marginVertical: 12,
+  },
+  radioOption: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-    gap: 16,
+    alignItems: "center",
+    marginVertical: 8,
+    padding: 8,
+  },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#007AFF",
+    marginRight: 12,
+  },
+  radioSelected: {
+    backgroundColor: "#007AFF",
+  },
+  radioLabel: {
+    fontSize: 16,
+    color: "#333",
+  },
+  buttonGroup: {
+    marginTop: 24,
+    gap: 12,
+  },
+  confirmButton: {
+    flex: 1,
   },
 });
 

@@ -8,36 +8,36 @@ import {
   View,
 } from "react-native";
 
-interface Type {
+interface Option {
   id: string;
   description: string;
 }
 
 interface OptionSelectorProps {
-  types: Type[];
-  selectedTypeId: string;
-  onTypeSelect: (type: Type) => void;
+  options: Option[];
+  selectedId: string;
+  onSelect: (option: Option) => void;
   label?: string;
   placeholder?: string;
 }
 
 const OptionSelector: React.FC<OptionSelectorProps> = ({
-  types,
-  selectedTypeId,
-  onTypeSelect,
+  options,
+  selectedId,
+  onSelect,
   label,
   placeholder,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const getSelectedTypeName = () => {
-    if (!selectedTypeId) return placeholder || "Selecione uma opção";
-    const selected = types.find((type) => type.id === selectedTypeId);
+  const getSelectedOptionName = () => {
+    if (!selectedId) return placeholder || "Selecione uma opção";
+    const selected = options.find((option) => option.id === selectedId);
     return selected ? selected.description : placeholder || "Selecione uma opção";
   };
 
-  const handleTypeSelect = (type: Type) => {
-    onTypeSelect(type);
+  const handleOptionSelect = (option: Option) => {
+    onSelect(option);
     setModalVisible(false);
   };
 
@@ -51,10 +51,10 @@ const OptionSelector: React.FC<OptionSelectorProps> = ({
         <Text
           style={[
             styles.selectButtonText,
-            !selectedTypeId && styles.placeholderText,
+            !selectedId && styles.placeholderText,
           ]}
         >
-          {getSelectedTypeName()}
+          {getSelectedOptionName()}
         </Text>
         <Text style={styles.dropdownIcon}>▼</Text>
       </TouchableOpacity>
@@ -77,23 +77,23 @@ const OptionSelector: React.FC<OptionSelectorProps> = ({
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalList}>
-              {types.map((type) => (
+              {options.map((option) => (
                 <TouchableOpacity
-                  key={type.id}
+                  key={option.id}
                   style={[
                     styles.modalItem,
-                    selectedTypeId === type.id && styles.modalItemSelected,
+                    selectedId === option.id && styles.modalItemSelected,
                   ]}
-                  onPress={() => handleTypeSelect(type)}
+                  onPress={() => handleOptionSelect(option)}
                 >
                   <Text
                     style={[
                       styles.modalItemText,
-                      selectedTypeId === type.id &&
+                      selectedId === option.id &&
                         styles.modalItemTextSelected,
                     ]}
                   >
-                    {type.description}
+                    {option.description}
                   </Text>
                 </TouchableOpacity>
               ))}

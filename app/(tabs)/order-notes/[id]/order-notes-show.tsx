@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -21,41 +21,38 @@ const OrderDetailScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   // Load order details
-  const loadOrder = useCallback(
-    async (showRefreshing = false) => {
-      try {
-        if (showRefreshing) {
-          setRefreshing(true);
-        } else {
-          setLoading(true);
-        }
-        const response = await api.get<{ order: Order }>(
-          `/technician/orders/${id}`
-        );
-        setOrder(response.data.order);
-        console.log("Order loaded:", response.data.order);
-      } catch (error: any) {
-        if (error.response?.data?.error) {
-          // Check if response has error
-          Alert.alert("Acesso Negado", error.response.data.error);
-          router.back();
-          return;
-        }
-        Alert.alert("Error", "Falha ao carregar dados do serviço");
-        console.error("Error loading order:", error);
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
+  const loadOrder = async (showRefreshing = false) => {
+    try {
+      if (showRefreshing) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
       }
-    },
-    [id]
-  ); // Add dependencies that loadOrder uses
+      const response = await api.get<{ order: Order }>(
+        `/technician/orders/${id}`
+      );
+      setOrder(response.data.order);
+      console.log("Order loaded:", response.data.order);
+    } catch (error: any) {
+      if (error.response?.data?.error) {
+        // Check if response has error
+        Alert.alert("Acesso Negado", error.response.data.error);
+        router.back();
+        return;
+      }
+      Alert.alert("Error", "Falha ao carregar dados do serviço");
+      console.error("Error loading order:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }; // Add dependencies that loadOrder uses
 
   useEffect(() => {
     if (id) {
       loadOrder();
     }
-  }, [id, loadOrder]); // Now include loadOrder in dependencies
+  }, [id]); // Now include loadOrder in dependencies
 
   // Handle refresh
   const handleRefresh = () => {
