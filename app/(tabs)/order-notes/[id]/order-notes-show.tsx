@@ -34,7 +34,13 @@ const OrderDetailScreen = () => {
         );
         setOrder(response.data.order);
         console.log("Order loaded:", response.data.order);
-      } catch (error) {
+      } catch (error: any) {
+        if (error.response?.data?.error) {
+          // Check if response has error
+          Alert.alert("Acesso Negado", error.response.data.error);
+          router.back();
+          return;
+        }
         Alert.alert("Error", "Falha ao carregar dados do serviço");
         console.error("Error loading order:", error);
       } finally {

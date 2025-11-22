@@ -40,8 +40,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onPress }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.header}>
-        <Text style={styles.serviceType} numberOfLines={1}>
-          {order.id} - {order.type.description}
+        <Text style={styles.clientName} numberOfLines={1}>
+          {order.id} - {order.client.name}
         </Text>
 
         <View
@@ -59,6 +59,12 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onPress }) => {
       </Text>
 
       <View style={styles.details}>
+
+        <View style={styles.detailRow}>
+          <Text style={styles.detailLabel}>Tipo de serviço:</Text>
+          <Text style={styles.detailValue}>{order.type.description}</Text>
+        </View>
+
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>Setor:</Text>
           <Text style={styles.detailValue}>{order.sector}</Text>
@@ -99,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 8,
   },
-  serviceType: {
+  clientName: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#333",
@@ -134,12 +140,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   detailLabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#999",
     fontWeight: "500",
   },
   detailValue: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#333",
     fontWeight: "400",
   },

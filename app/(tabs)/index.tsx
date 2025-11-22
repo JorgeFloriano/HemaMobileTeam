@@ -21,7 +21,7 @@ export interface Order {
   client: {
     id: string;
     name: string;
-  }
+  };
   tec_id?: string | null;
   req_descr: string;
   req_name: string;
@@ -70,6 +70,9 @@ export interface Order {
 }
 interface OrdersResponse {
   orders: Order[];
+  error?: string;
+  success?: boolean;
+  message?: string;
 }
 
 const OrdersScreen = () => {
@@ -78,7 +81,12 @@ const OrdersScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { user } = useAuth();
+  const { logout } = useAuth();
+
+  const performLogout = async () => {
+    await logout();
+    router.replace("/login");
+  };
 
   // Load orders
   const loadOrders = async (showRefreshing = false) => {
@@ -91,8 +99,15 @@ const OrdersScreen = () => {
 
       setError(null);
       const response = await api.get<OrdersResponse>("/technician/orders/");
+
       setOrders(response.data.orders);
-    } catch (err) {
+    } catch (err: any) {
+      if (err.response?.data?.error) {
+        // Check if response has error
+        Alert.alert("Acesso Negado", err.response.data.error);
+        performLogout();
+        return;
+      }
       const errorMessage =
         "Falha ao carregar solicitações de assistência técnica";
       setError(errorMessage);

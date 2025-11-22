@@ -79,7 +79,13 @@ const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
       } else {
         const parentPath = getParentPath(pathname);
         if (parentPath !== pathname) {
-          router.push(parentPath as any);
+          try {
+            router.back();
+          } catch (error) {
+            console.error("Error navigating back:", error);
+          }
+
+          //router.push(parentPath as any);
         } else {
           router.push("/(tabs)");
         }

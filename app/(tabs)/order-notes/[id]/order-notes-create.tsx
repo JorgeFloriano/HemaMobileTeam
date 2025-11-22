@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Alert, StyleSheet, Text, Keyboard } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import api from "@/src/services/api";
 import TextInput from "@/src/components/TextInput";
 import Button from "@/src/components/Button";
@@ -13,20 +13,20 @@ interface Type {
 }
 
 interface FormData {
-  order_type_id: string;
+  note_type_id: string;
   sector: string;
   req_name: string;
   req_descr: string;
   equipment: string;
 }
 
-const CreateOrderScreen = () => {
+const CreateOrderNoteScreen = () => {
   const router = useRouter();
   const [types, setTypes] = useState<Type[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const { id } = useLocalSearchParams();
   const [formData, setFormData] = useState({
-    order_type_id: "",
+    note_type_id: "",
     sector: "",
     req_name: "",
     // req_date: new Date().toLocaleDateString("pt-BR"),
@@ -45,13 +45,6 @@ const CreateOrderScreen = () => {
       console.log("🔄 Loading order types...");
 
       const response = await api.get("/technician/orders/create");
-
-      // Check if response has error
-      if (response.data.error) {
-        Alert.alert("Acesso Negado", response.data.error);
-        router.back();
-        return;
-      }
 
       // FIXED: Better data handling
       const typesData = response.data.types || response.data;
@@ -77,6 +70,9 @@ const CreateOrderScreen = () => {
       }
 
       Alert.alert("Erro", errorMessage);
+      router.back();
+    } finally {
+      setLoading(false);
     }
   }, [router]);
 
@@ -86,7 +82,7 @@ const CreateOrderScreen = () => {
   }, [loadOrderTypes]); // Now loadOrderTypes is stable due to useCallback
 
   const handleSubmit = async () => {
-    if (!formData.order_type_id) {
+    if (!formData.note_type_id) {
       Alert.alert("Erro", "Por favor selecione um tipo de serviço");
       return;
     }
@@ -140,7 +136,7 @@ const CreateOrderScreen = () => {
 
   const resetForm = () => {
     setFormData({
-      order_type_id: "",
+      note_type_id: "",
       sector: "",
       req_name: "",
       // req_date: new Date().toLocaleDateString("pt-BR"),
@@ -159,18 +155,32 @@ const CreateOrderScreen = () => {
   };
 
   const handleTypeSelect = (type: Type) => {
-    updateFormData("order_type_id", type.id);
+    updateFormData("note_type_id", type.id);
   };
 
   return (
     <KeyboardAvoindingContainer>
       <View style={styles.form}>
-        <Text style={styles.welcome}>Abrir Solicitação</Text>
+
+        <Text style={styles.welcome}>SAT nº {id}</Text>
+
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Cliente: </Text>
+          <Text style={styles.headerText}>Unidade: </Text>
+          <Text style={styles.headerText}>Endereço: </Text>
+          <Text style={styles.headerText}>Contato: </Text>
+          <Text style={styles.headerText}>Setor:</Text>
+          <Text style={styles.headerText}>Solicitante: </Text>
+          <Text style={styles.headerText}>Data e Hora: </Text>
+          <Text style={styles.headerText}>Descrição da Solicitação: </Text>
+          <Text style={styles.headerLastText}>Equipamento: </Text>
+        </View>
+
         <OptionSelector
           label="Tipo de Serviço *"
           placeholder="Selecione um tipo de serviço"
           types={types}
-          selectedTypeId={formData.order_type_id}
+          selectedTypeId={formData.note_type_id}
           onTypeSelect={handleTypeSelect}
         />
 
@@ -246,6 +256,29 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 
+  header: {
+    borderWidth: 1,
+    borderColor: "black",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+
+  headerText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "black",
+  },
+
+  headerLastText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    padding: 10,
+  },
+
   form: {
     paddingTop: 60,
     paddingHorizontal: 16,
@@ -264,4 +297,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateOrderScreen;
+export default CreateOrderNoteScreen;
