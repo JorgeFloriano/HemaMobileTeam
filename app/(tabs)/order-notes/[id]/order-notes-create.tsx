@@ -9,11 +9,11 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import api from "@/src/services/api";
-import TextInput from "@/src/components/TextInput";
-import DateInput from "@/src/components/DateInput";
-import TimeInput, { TimeInputRef } from "@/src/components/TimeInput";
 import Button from "@/src/components/Button";
-import OptionSelector from "@/src/components/OptionSelector";
+import TextInput, { TextInputRef } from '@/src/components/TextInput';
+import DateInput, { DateInputRef } from "@/src/components/DateInput";
+import TimeInput, { TimeInputRef } from "@/src/components/TimeInput";
+import OptionSelector, { OptionSelectorRef } from '@/src/components/OptionSelector';
 import KeyboardAvoindingContainer from "@/src/components/KeyboardAvoidingContainer";
 
 interface Type {
@@ -136,7 +136,7 @@ const CreateOrderNoteScreen = () => {
     cause_id: "",
     solution_id: "",
     services: "",
-    date: new Date().toLocaleDateString("pt-BR"), // dd/mm/yyy
+    date: new Date().toLocaleDateString("pt-BR"), // dd/mm/yyyy
     go_start: "",
     go_end: "",
     start: new Date().toTimeString().slice(0, 5), // HH:MM
@@ -195,6 +195,12 @@ const CreateOrderNoteScreen = () => {
     loadNoteCreationData();
   }, [loadNoteCreationData]);
 
+  const modEquipRef = useRef<TextInputRef>(null);
+  const numEquipRef = useRef<TextInputRef>(null);
+  const typeEquipRef = useRef<TextInputRef>(null);
+  const typeRef = useRef<OptionSelectorRef>(null);
+  const defectRef = useRef<OptionSelectorRef>(null);
+  const dateRef = useRef<DateInputRef>(null);
   const startTimeRef = useRef<TimeInputRef>(null);
   const endTimeRef = useRef<TimeInputRef>(null);
 
@@ -248,10 +254,18 @@ const CreateOrderNoteScreen = () => {
     //   Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
     //   return;
     // }
+
+    const isModEquipValid = modEquipRef.current?.validate();
+    const isNumEquipValid = numEquipRef.current?.validate();
+    const isTypeEquipValid = typeEquipRef.current?.validate();
+    const isTypeValid = typeRef.current?.validate();
+    const isDefectValid = defectRef.current?.validate();
+    const isDateValid = dateRef.current?.validate();
     const isStartTimeValid = startTimeRef.current?.validate();
     const isEndTimeValid = endTimeRef.current?.validate();
 
-    if (!isStartTimeValid || !isEndTimeValid) {
+    if (!isStartTimeValid || !isEndTimeValid || !isDateValid || !isTypeValid || !isDefectValid || !isModEquipValid || !isNumEquipValid || !isTypeEquipValid) {
+      Alert.alert("Erro", "Provavelmente alguns campos obrigatórios (com detalhes em vermelho) não foram preenchidos corretamente, por favor verifique e tente novamente!");
       return;
     }
 
@@ -365,44 +379,54 @@ const CreateOrderNoteScreen = () => {
 
         {/* Equipment Information */}
         <TextInput
-          label="Modelo do Equipamento *"
+          ref={modEquipRef}
+          label="Modelo do Equipamento"
           value={formData.equip_mod}
           onChangeText={(text) => updateFormData("equip_mod", text)}
           placeholder="Modelo do Equipamento"
           maxLength={20}
+          required
         />
 
         <TextInput
-          label="Número de Identificação *"
+          ref={numEquipRef}
+          label="Número de Identificação"
           value={formData.equip_id}
           onChangeText={(text) => updateFormData("equip_id", text)}
           placeholder="Número de Série"
           maxLength={20}
+          required
         />
 
         <TextInput
-          label="Tipo do Equipamento *"
+          ref={typeEquipRef}
+          label="Tipo do Equipamento"
           value={formData.equip_type}
           onChangeText={(text) => updateFormData("equip_type", text)}
           placeholder="Tipo"
           maxLength={20}
+          required
         />
 
         {/* Selection Fields */}
         <OptionSelector
-          label="Tipo de Atendimento *"
+          ref={typeRef}
+          label="Tipo de Atendimento"
           placeholder="Selecione o tipo de atendimento"
           options={types}
           selectedId={formData.note_type_id}
           onSelect={(item) => updateFormData("note_type_id", item.id)}
+          required
         />
 
         <OptionSelector
-          label="Defeito *"
+          ref={defectRef}
+          label="Defeito"
           placeholder="Selecione o defeito"
           options={defects}
           selectedId={formData.defect_id}
           onSelect={(item) => updateFormData("defect_id", item.id)}
+          required
         />
 
         <OptionSelector
@@ -434,10 +458,12 @@ const CreateOrderNoteScreen = () => {
 
         {/* Date and Time Sections */}
         <DateInput
-          label="Data do Atendimento *"
+          ref={dateRef}
+          label="Data do Atendimento"
           value={formData.date}
           onChangeText={(text) => updateFormData("date", text)}
           placeholder="DD/MM/AAAA"
+          required
         />
 
         <View style={styles.row}>

@@ -1,6 +1,6 @@
 // src/components/TextInput.tsx
-import React, { useState } from "react";
-import BaseInput from "./BaseInput";
+import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
+import BaseInput, { BaseInputRef } from "./BaseInput";
 import { TextStyle, ViewStyle, StyleProp } from "react-native";
 
 interface TextInputProps {
@@ -11,8 +11,8 @@ interface TextInputProps {
   maxLength?: number;
   multiline?: boolean;
   numberOfLines?: number;
-  style?: StyleProp<TextStyle>; // ← Add this
-  containerStyle?: StyleProp<ViewStyle>; // ← And this
+  style?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
   type?: "text" | "email" | "number";
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   autoCorrect?: boolean;
@@ -20,15 +20,38 @@ interface TextInputProps {
   keyboardType?: any;
   returnKeyType?: "done" | "go" | "next" | "search" | "send";
   onSubmitEditing?: () => void;
+  required?: boolean; // Add required prop
+  error?: boolean; // Add error prop
+  errorMessage?: string; // Add errorMessage prop
 }
 
-const TextInput: React.FC<TextInputProps> = ({
+export interface TextInputRef {
+  focus: () => void;
+  validate: () => boolean;
+  clearError: () => void;
+}
+
+const TextInput = forwardRef<TextInputRef, TextInputProps>(({
   type = "text",
   keyboardType,
   autoCapitalize,
   ...props
-}) => {
+}, ref) => {
   const [isFocused, setIsFocused] = useState(false);
+  const baseInputRef = useRef<BaseInputRef>(null);
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      baseInputRef.current?.focus();
+    },
+    validate: () => {
+      return baseInputRef.current?.validate() ?? false;
+    },
+    clearError: () => {
+      baseInputRef.current?.clearError();
+    },
+  }));
 
   // Set keyboard type based on input type
   const getKeyboardType = () => {
@@ -59,6 +82,7 @@ const TextInput: React.FC<TextInputProps> = ({
   return (
     <BaseInput
       {...props}
+      ref={baseInputRef}
       keyboardType={getKeyboardType()}
       autoCapitalize={getAutoCapitalize()}
       isFocused={isFocused}
@@ -66,6 +90,9 @@ const TextInput: React.FC<TextInputProps> = ({
       onBlur={() => setIsFocused(false)}
     />
   );
-};
+});
+
+// Add display name
+TextInput.displayName = "TextInput";
 
 export default TextInput;

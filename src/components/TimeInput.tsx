@@ -203,7 +203,7 @@ const TimeInput = forwardRef<TimeInputRef, TimeInputProps>((props, ref) => {
   );
 });
 
-// Add display name
+// Assign displayName to the component
 TimeInput.displayName = "TimeInput";
 
 // Styles with proper StyleSheet.create

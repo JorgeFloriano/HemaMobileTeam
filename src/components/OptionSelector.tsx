@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import {
   Modal,
   ScrollView,
@@ -19,16 +19,44 @@ interface OptionSelectorProps {
   onSelect: (option: Option) => void;
   label?: string;
   placeholder?: string;
+  required?: boolean;
+  error?: boolean;
+  errorMessage?: string;
 }
 
-const OptionSelector: React.FC<OptionSelectorProps> = ({
+export interface OptionSelectorRef {
+  focus: () => void;
+  validate: () => boolean;
+  clearError: () => void;
+}
+
+const OptionSelector = forwardRef<OptionSelectorRef, OptionSelectorProps>(({
   options,
   selectedId,
   onSelect,
   label,
   placeholder,
-}) => {
+  required = false,
+  error = false,
+  errorMessage = "Este campo é obrigatório",
+}, ref) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [localError, setLocalError] = useState(false);
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      setModalVisible(true);
+    },
+    validate: () => {
+      const isValid = !required || !!selectedId;
+      setLocalError(!isValid);
+      return isValid;
+    },
+    clearError: () => {
+      setLocalError(false);
+    },
+  }));
 
   const getSelectedOptionName = () => {
     if (!selectedId) return placeholder || "Selecione uma opção";
@@ -39,39 +67,80 @@ const OptionSelector: React.FC<OptionSelectorProps> = ({
   const handleOptionSelect = (option: Option) => {
     onSelect(option);
     setModalVisible(false);
+    // Clear error when user selects an option
+    if (localError) {
+      setLocalError(false);
+    }
   };
+
+  const handleOpenModal = () => {
+    setModalVisible(true);
+    // Clear error when user interacts with the selector
+    if (localError) {
+      setLocalError(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    // Validate on close if required and no selection
+    if (required && !selectedId) {
+      setLocalError(true);
+    }
+  };
+
+  const isError = localError || error;
 
   return (
     <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
+      {label && (
+        <View style={styles.labelContainer}>
+          {required && <View style={styles.requiredDot} />}
+          <Text style={[
+            styles.label
+          ]}>
+            {label}
+            {required}
+          </Text>
+        </View>
+      )}
+      
       <TouchableOpacity
-        style={styles.selectButton}
-        onPress={() => setModalVisible(true)}
+        style={[
+          styles.selectButton
+        ]}
+        onPress={handleOpenModal}
       >
         <Text
           style={[
             styles.selectButtonText,
             !selectedId && styles.placeholderText,
+            isError && styles.selectButtonTextError,
           ]}
         >
-          {getSelectedOptionName()}
+          {isError && !selectedId ? errorMessage : getSelectedOptionName()}
         </Text>
-        <Text style={styles.dropdownIcon}>▼</Text>
+        <Text style={[
+          styles.dropdownIcon,
+          isError && styles.dropdownIconError
+        ]}>▼</Text>
       </TouchableOpacity>
 
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={handleCloseModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Selecione uma opção</Text>
+              <Text style={styles.modalTitle}>
+                {label || "Selecione uma opção"}
+              </Text>
               <TouchableOpacity
                 style={styles.closeButton}
-                onPress={() => setModalVisible(false)}
+                onPress={handleCloseModal}
               >
                 <Text style={styles.closeButtonText}>×</Text>
               </TouchableOpacity>
@@ -89,12 +158,14 @@ const OptionSelector: React.FC<OptionSelectorProps> = ({
                   <Text
                     style={[
                       styles.modalItemText,
-                      selectedId === option.id &&
-                        styles.modalItemTextSelected,
+                      selectedId === option.id && styles.modalItemTextSelected,
                     ]}
                   >
                     {option.description}
                   </Text>
+                  {selectedId === option.id && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -103,18 +174,33 @@ const OptionSelector: React.FC<OptionSelectorProps> = ({
       </Modal>
     </View>
   );
-};
+});
+
+// Assign displayName to the component
+OptionSelector.displayName = "OptionSelector";
 
 const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: 16,
   },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  requiredDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#dc3545",
+    marginRight: 6,
+  },
   label: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 8,
     color: "#333",
   },
+  
   selectButton: {
     backgroundColor: "white",
     borderWidth: 1,
@@ -126,9 +212,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  
   selectButtonText: {
     fontSize: 16,
     color: "#333",
+    flex: 1,
+  },
+  selectButtonTextError: {
+    color: "#dc3545",
   },
   placeholderText: {
     color: "#6b7280",
@@ -136,6 +227,15 @@ const styles = StyleSheet.create({
   dropdownIcon: {
     fontSize: 12,
     color: "#6b7280",
+  },
+  dropdownIconError: {
+    color: "#dc3545",
+  },
+  errorText: {
+    color: "#dc3545",
+    fontSize: 14,
+    marginTop: 4,
+    marginLeft: 4,
   },
   modalOverlay: {
     flex: 1,
@@ -177,6 +277,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#f3f4f6",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   modalItemSelected: {
     backgroundColor: "#1b0363ff",
@@ -184,9 +287,15 @@ const styles = StyleSheet.create({
   modalItemText: {
     fontSize: 16,
     color: "#333",
+    flex: 1,
   },
   modalItemTextSelected: {
     color: "white",
+  },
+  checkmark: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
