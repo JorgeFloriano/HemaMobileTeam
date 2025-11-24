@@ -168,15 +168,15 @@ const CreateOrderNoteScreen = () => {
         <Text style={styles.welcome}>SAT nº {id}</Text>
 
         <View style={styles.header}>
-          <Text style={styles.headerText}>Cliente: {order?.client?.name}</Text>
-          <Text style={styles.headerText}>Unidade: {order?.client?.unit}</Text>
-          <Text style={styles.headerText}>Endereço: {order?.client?.address}</Text>
-          <Text style={styles.headerText}>Contato: {order?.req_name}</Text>
-          <Text style={styles.headerText}>Setor: {order?.sector}</Text>
-          <Text style={styles.headerText}>Solicitante: {order?.user?.name || ""}</Text>
-          <Text style={styles.headerText}>Data e Hora: {formatDate(order?.req_date || "")} ás {formatTime(order?.req_time || "")}</Text>
-          <Text style={styles.headerText}>Descrição da Solicitação: {order?.req_descr}</Text>
-          <Text style={styles.headerLastText}>Equipamento: {order?.equipment || ""}</Text>
+          <Text style={styles.headerText}>Cliente: </Text>
+          <Text style={styles.headerText}>Unidade: </Text>
+          <Text style={styles.headerText}>Endereço: </Text>
+          <Text style={styles.headerText}>Contato: </Text>
+          <Text style={styles.headerText}>Setor: </Text>
+          <Text style={styles.headerText}>Solicitante: </Text>
+          <Text style={styles.headerText}>Data e Hora: </Text>
+          <Text style={styles.headerText}>Descrição da Solicitação: </Text>
+          <Text style={styles.headerLastText}>Equipamento: </Text>
         </View>
 
         <OptionSelector

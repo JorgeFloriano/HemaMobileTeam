@@ -1,18 +1,17 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Alert,
   StyleSheet,
   Text,
   Keyboard,
-  ScrollView,
   TouchableOpacity,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import api from "@/src/services/api";
 import TextInput from "@/src/components/TextInput";
 import DateInput from "@/src/components/DateInput";
-import TimeInput from "@/src/components/TimeInput";
+import TimeInput, { TimeInputRef } from "@/src/components/TimeInput";
 import Button from "@/src/components/Button";
 import OptionSelector from "@/src/components/OptionSelector";
 import KeyboardAvoindingContainer from "@/src/components/KeyboardAvoidingContainer";
@@ -137,7 +136,7 @@ const CreateOrderNoteScreen = () => {
     cause_id: "",
     solution_id: "",
     services: "",
-    date: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    date: new Date().toLocaleDateString("pt-BR"), // dd/mm/yyy
     go_start: "",
     go_end: "",
     start: new Date().toTimeString().slice(0, 5), // HH:MM
@@ -196,54 +195,63 @@ const CreateOrderNoteScreen = () => {
     loadNoteCreationData();
   }, [loadNoteCreationData]);
 
+  const startTimeRef = useRef<TimeInputRef>(null);
+  const endTimeRef = useRef<TimeInputRef>(null);
+
   const handleSubmit = async () => {
     // Validation
-    if (!formData.equip_mod) {
-      Alert.alert("Erro", "Por favor informe o modelo do equipamento");
-      return;
-    }
-    if (!formData.equip_id) {
-      Alert.alert("Erro", "Por favor informe o número de identificação");
-      return;
-    }
-    if (!formData.equip_type) {
-      Alert.alert("Erro", "Por favor informe o tipo do equipamento");
-      return;
-    }
-    if (!formData.note_type_id) {
-      Alert.alert("Erro", "Por favor selecione o tipo de atendimento");
-      return;
-    }
-    if (!formData.defect_id) {
-      Alert.alert("Erro", "Por favor selecione o defeito");
-      return;
-    }
-    if (!formData.cause_id) {
-      Alert.alert("Erro", "Por favor selecione a causa");
-      return;
-    }
-    if (!formData.solution_id) {
-      Alert.alert("Erro", "Por favor selecione a solução");
-      return;
-    }
-    if (!formData.services) {
-      Alert.alert("Erro", "Por favor descreva os serviços executados");
-      return;
-    }
-    if (!formData.date) {
-      Alert.alert("Erro", "Por favor informe a data do atendimento");
-      return;
-    }
-    if (!formData.start || !formData.end) {
-      Alert.alert("Erro", "Por favor informe horário de início e término");
-      return;
-    }
-    if (!formData.first_tec) {
-      Alert.alert("Erro", "Por favor selecione o técnico principal");
-      return;
-    }
-    if (!formData.finished) {
-      Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
+    // if (!formData.equip_mod) {
+    //   Alert.alert("Erro", "Por favor informe o modelo do equipamento");
+    //   return;
+    // }
+    // if (!formData.equip_id) {
+    //   Alert.alert("Erro", "Por favor informe o número de identificação");
+    //   return;
+    // }
+    // if (!formData.equip_type) {
+    //   Alert.alert("Erro", "Por favor informe o tipo do equipamento");
+    //   return;
+    // }
+    // if (!formData.note_type_id) {
+    //   Alert.alert("Erro", "Por favor selecione o tipo de atendimento");
+    //   return;
+    // }
+    // if (!formData.defect_id) {
+    //   Alert.alert("Erro", "Por favor selecione o defeito");
+    //   return;
+    // }
+    // if (!formData.cause_id) {
+    //   Alert.alert("Erro", "Por favor selecione a causa");
+    //   return;
+    // }
+    // if (!formData.solution_id) {
+    //   Alert.alert("Erro", "Por favor selecione a solução");
+    //   return;
+    // }
+    // if (!formData.services) {
+    //   Alert.alert("Erro", "Por favor descreva os serviços executados");
+    //   return;
+    // }
+    // if (!formData.date) {
+    //   Alert.alert("Erro", "Por favor informe a data do atendimento");
+    //   return;
+    // }
+    // if (!formData.start || !formData.end) {
+    //   Alert.alert("Erro", "Por favor informe horário de início e término");
+    //   return;
+    // }
+    // if (!formData.first_tec) {
+    //   Alert.alert("Erro", "Por favor selecione o técnico principal");
+    //   return;
+    // }
+    // if (!formData.finished) {
+    //   Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
+    //   return;
+    // }
+    const isStartTimeValid = startTimeRef.current?.validate();
+    const isEndTimeValid = endTimeRef.current?.validate();
+
+    if (!isStartTimeValid || !isEndTimeValid) {
       return;
     }
 
@@ -316,25 +324,42 @@ const CreateOrderNoteScreen = () => {
 
         {/* Order Information Card */}
         <View style={styles.header}>
-          <Text style={styles.headerText}>Cliente: {order?.client?.name}</Text>
-          <Text style={styles.headerText}>Unidade: {order?.client?.unit}</Text>
           <Text style={styles.headerText}>
-            Endereço: {order?.client?.address}
-          </Text>
-          <Text style={styles.headerText}>Contato: {order?.req_name}</Text>
-          <Text style={styles.headerText}>Setor: {order?.sector}</Text>
-          <Text style={styles.headerText}>
-            Solicitante: {order?.user?.name || ""}
+            <Text style={styles.headerLabel}>Cliente: </Text>
+            {order?.client?.name}
           </Text>
           <Text style={styles.headerText}>
-            Data e Hora: {formatDate(order?.req_date || "")} ás{" "}
+            <Text style={styles.headerLabel}>Unidade: </Text>
+            {order?.client?.unit}
+          </Text>
+          <Text style={styles.headerText}>
+            <Text style={styles.headerLabel}>Endereço: </Text>
+            {order?.client?.address}
+          </Text>
+          <Text style={styles.headerText}>
+            <Text style={styles.headerLabel}>Contato: </Text>
+            {order?.req_name}
+          </Text>
+          <Text style={styles.headerText}>
+            <Text style={styles.headerLabel}>Setor: </Text>
+            {order?.sector}
+          </Text>
+          <Text style={styles.headerText}>
+            <Text style={styles.headerLabel}>Solicitante: </Text>
+            {order?.user?.name || ""}
+          </Text>
+          <Text style={styles.headerText}>
+            <Text style={styles.headerLabel}>Data e Hora: </Text>
+            {formatDate(order?.req_date || "")} às{" "}
             {formatTime(order?.req_time || "")}
           </Text>
           <Text style={styles.headerText}>
-            Descrição da Solicitação: {order?.req_descr}
+            <Text style={styles.headerLabel}>Descrição da Solicitação: </Text>
+            {order?.req_descr}
           </Text>
           <Text style={styles.headerLastText}>
-            Equipamento: {order?.equipment || ""}
+            <Text style={styles.headerLabel}>Equipamento: </Text>
+            {order?.equipment || ""}
           </Text>
         </View>
 
@@ -412,10 +437,9 @@ const CreateOrderNoteScreen = () => {
           label="Data do Atendimento *"
           value={formData.date}
           onChangeText={(text) => updateFormData("date", text)}
-          placeholder="YYYY-MM-DD"
+          placeholder="DD/MM/AAAA"
         />
 
-        <Text style={styles.sectionTitle}>Deslocamento - Ida</Text>
         <View style={styles.row}>
           <View style={styles.halfInput}>
             <TimeInput
@@ -435,29 +459,29 @@ const CreateOrderNoteScreen = () => {
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Atendimento no Local</Text>
         <View style={styles.row}>
           <View style={styles.halfInput}>
             <TimeInput
-              label="Início *"
+              ref={startTimeRef}
+              label="Início (execução)"
               value={formData.start}
               onChangeText={(text) => updateFormData("start", text)}
               placeholder="HH:MM"
-              //required
+              required
             />
           </View>
           <View style={styles.halfInput}>
             <TimeInput
-              label="Término *"
+              ref={endTimeRef}
+              label="Término (execução)"
               value={formData.end}
               onChangeText={(text) => updateFormData("end", text)}
               placeholder="HH:MM"
-              //required
+              required
             />
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Deslocamento - Volta</Text>
         <View style={styles.row}>
           <View style={styles.halfInput}>
             <TimeInput
@@ -505,61 +529,47 @@ const CreateOrderNoteScreen = () => {
 
         {/* Finish Options */}
         <Text style={styles.sectionTitle}>Status do Atendimento *</Text>
-        <View style={styles.radioGroup}>
-          <TouchableOpacity
-            style={styles.radioOption}
-            onPress={() => updateFormData("finished", "0")}
-          >
-            <View
-              style={[
-                styles.radio,
-                formData.finished === "0" && styles.radioSelected,
-              ]}
-            />
-            <Text style={styles.radioLabel}>
-              💾 Salvar (atendimento pendente)
-            </Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.radioOption}
-            onPress={() => updateFormData("finished", "1")}
-          >
-            <View
-              style={[
-                styles.radio,
-                formData.finished === "1" && styles.radioSelected,
-              ]}
-            />
-            <Text style={styles.radioLabel}>
-              ✅ Concluir (atendimento finalizado)
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Buttons */}
-        <View style={styles.buttonGroup}>
-          <Button
-            title={loading ? "Processando..." : "Confirmar"}
-            onPress={handleSubmit}
-            variant="primary"
-            disabled={loading}
-            style={styles.confirmButton}
+        <TouchableOpacity
+          style={styles.radioOption}
+          onPress={() => updateFormData("finished", "0")}
+        >
+          <View
+            style={[
+              styles.radio,
+              formData.finished === "0" && styles.radioSelected,
+            ]}
           />
+          <Text style={styles.radioLabel}>Salvar (atendimento pendente)</Text>
+        </TouchableOpacity>
 
-          <Button
-            title="Voltar"
-            onPress={() => router.back()}
-            variant="secondary"
+        <TouchableOpacity
+          style={styles.radioOption}
+          onPress={() => updateFormData("finished", "1")}
+        >
+          <View
+            style={[
+              styles.radio,
+              formData.finished === "1" && styles.radioSelected,
+            ]}
           />
-        </View>
+          <Text style={styles.radioLabel}>
+            Concluir (atendimento finalizado)
+          </Text>
+        </TouchableOpacity>
+        <Button
+          title={loading ? "Processando..." : "Confirmar"}
+          onPress={handleSubmit}
+          variant="primary"
+          disabled={loading}
+          style={styles.submitButton}
+        />
       </View>
     </KeyboardAvoindingContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  
   centerContainer: {
     flex: 1,
     justifyContent: "center",
@@ -576,14 +586,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     color: "#333",
   },
-  
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#333",
-  },
 
   header: {
     borderWidth: 1,
@@ -594,39 +596,22 @@ const styles = StyleSheet.create({
 
   headerText: {
     fontSize: 16,
-    fontWeight: "bold",
     color: "#333",
     padding: 10,
     borderBottomWidth: 1,
     borderColor: "black",
   },
 
+  headerLabel: {
+    fontWeight: "600",
+  },
+
   headerLastText: {
     fontSize: 16,
-    fontWeight: "bold",
     color: "#333",
     padding: 10,
   },
 
-  card: {
-    borderWidth: 1,
-    borderColor: "#000",
-    borderRadius: 8,
-    marginBottom: 16,
-    backgroundColor: "#fff",
-  },
-  cardItem: {
-    padding: 12,
-    fontSize: 16,
-  },
-  bold: {
-    fontWeight: "bold",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#000",
-    marginHorizontal: 8,
-  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
@@ -636,19 +621,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 12,
   },
   halfInput: {
     flex: 1,
     marginHorizontal: 4,
   },
-  radioGroup: {
-    marginVertical: 12,
-  },
+
   radioOption: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 8,
+
     padding: 8,
   },
   radio: {
@@ -656,22 +638,26 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#007AFF",
+    borderColor: "#ced4da",
     marginRight: 12,
   },
   radioSelected: {
-    backgroundColor: "#007AFF",
+    outlineColor: "#2809843e",
+    outlineWidth: 3,
+    outlineStyle: "solid",
+    borderWidth: 6,
+    borderColor: "black",
+    backgroundColor: "white",
   },
   radioLabel: {
     fontSize: 16,
     color: "#333",
   },
-  buttonGroup: {
-    marginTop: 24,
-    gap: 12,
-  },
-  confirmButton: {
-    flex: 1,
+
+  submitButton: {
+    marginTop: 16,
+    width: "auto",
+    alignSelf: "flex-start",
   },
 });
 
