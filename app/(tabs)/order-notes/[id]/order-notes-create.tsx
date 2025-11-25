@@ -10,10 +10,12 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import api from "@/src/services/api";
 import Button from "@/src/components/Button";
-import TextInput, { TextInputRef } from '@/src/components/TextInput';
+import TextInput, { TextInputRef } from "@/src/components/TextInput";
 import DateInput, { DateInputRef } from "@/src/components/DateInput";
 import TimeInput, { TimeInputRef } from "@/src/components/TimeInput";
-import OptionSelector, { OptionSelectorRef } from '@/src/components/OptionSelector';
+import OptionSelector, {
+  OptionSelectorRef,
+} from "@/src/components/OptionSelector";
 import KeyboardAvoindingContainer from "@/src/components/KeyboardAvoidingContainer";
 
 interface Type {
@@ -200,72 +202,53 @@ const CreateOrderNoteScreen = () => {
   const typeEquipRef = useRef<TextInputRef>(null);
   const typeRef = useRef<OptionSelectorRef>(null);
   const defectRef = useRef<OptionSelectorRef>(null);
+  const causeRef = useRef<OptionSelectorRef>(null);
+  const solutionRef = useRef<OptionSelectorRef>(null);
+  const servicesRef = useRef<TextInputRef>(null);
   const dateRef = useRef<DateInputRef>(null);
   const startTimeRef = useRef<TimeInputRef>(null);
   const endTimeRef = useRef<TimeInputRef>(null);
+  const firstTecRef = useRef<OptionSelectorRef>(null);
 
   const handleSubmit = async () => {
     // Validation
-    // if (!formData.equip_mod) {
-    //   Alert.alert("Erro", "Por favor informe o modelo do equipamento");
-    //   return;
-    // }
-    // if (!formData.equip_id) {
-    //   Alert.alert("Erro", "Por favor informe o número de identificação");
-    //   return;
-    // }
-    // if (!formData.equip_type) {
-    //   Alert.alert("Erro", "Por favor informe o tipo do equipamento");
-    //   return;
-    // }
-    // if (!formData.note_type_id) {
-    //   Alert.alert("Erro", "Por favor selecione o tipo de atendimento");
-    //   return;
-    // }
-    // if (!formData.defect_id) {
-    //   Alert.alert("Erro", "Por favor selecione o defeito");
-    //   return;
-    // }
-    // if (!formData.cause_id) {
-    //   Alert.alert("Erro", "Por favor selecione a causa");
-    //   return;
-    // }
-    // if (!formData.solution_id) {
-    //   Alert.alert("Erro", "Por favor selecione a solução");
-    //   return;
-    // }
-    // if (!formData.services) {
-    //   Alert.alert("Erro", "Por favor descreva os serviços executados");
-    //   return;
-    // }
-    // if (!formData.date) {
-    //   Alert.alert("Erro", "Por favor informe a data do atendimento");
-    //   return;
-    // }
-    // if (!formData.start || !formData.end) {
-    //   Alert.alert("Erro", "Por favor informe horário de início e término");
-    //   return;
-    // }
-    // if (!formData.first_tec) {
-    //   Alert.alert("Erro", "Por favor selecione o técnico principal");
-    //   return;
-    // }
-    // if (!formData.finished) {
-    //   Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
-    //   return;
-    // }
+
+    if (!formData.finished) {
+      Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
+      return;
+    }
 
     const isModEquipValid = modEquipRef.current?.validate();
     const isNumEquipValid = numEquipRef.current?.validate();
     const isTypeEquipValid = typeEquipRef.current?.validate();
     const isTypeValid = typeRef.current?.validate();
     const isDefectValid = defectRef.current?.validate();
+    const isCauseValid = causeRef.current?.validate();
+    const isSolutionValid = solutionRef.current?.validate();
+    const isServicesValid = servicesRef.current?.validate();
     const isDateValid = dateRef.current?.validate();
     const isStartTimeValid = startTimeRef.current?.validate();
     const isEndTimeValid = endTimeRef.current?.validate();
+    const isFirstTecValid = firstTecRef.current?.validate();
 
-    if (!isStartTimeValid || !isEndTimeValid || !isDateValid || !isTypeValid || !isDefectValid || !isModEquipValid || !isNumEquipValid || !isTypeEquipValid) {
-      Alert.alert("Erro", "Provavelmente alguns campos obrigatórios (com detalhes em vermelho) não foram preenchidos corretamente, por favor verifique e tente novamente!");
+    if (
+      !isStartTimeValid ||
+      !isEndTimeValid ||
+      !isDateValid ||
+      !isTypeValid ||
+      !isDefectValid ||
+      !isModEquipValid ||
+      !isNumEquipValid ||
+      !isTypeEquipValid ||
+      !isCauseValid ||
+      !isSolutionValid ||
+      !isServicesValid ||
+      !isFirstTecValid
+    ) {
+      Alert.alert(
+        "Erro",
+        "Provavelmente alguns campos obrigatórios (com detalhes em vermelho) não foram preenchidos corretamente, por favor verifique e tente novamente!"
+      );
       return;
     }
 
@@ -430,30 +413,36 @@ const CreateOrderNoteScreen = () => {
         />
 
         <OptionSelector
-          label="Causa *"
+          ref={causeRef}
+          label="Causa"
           placeholder="Selecione a causa"
           options={causes}
           selectedId={formData.cause_id}
           onSelect={(item) => updateFormData("cause_id", item.id)}
+          required
         />
 
         <OptionSelector
-          label="Solução *"
+          label="Solução"
+          ref={solutionRef}
           placeholder="Selecione a solução"
           options={solutions}
           selectedId={formData.solution_id}
           onSelect={(item) => updateFormData("solution_id", item.id)}
+          required
         />
 
         {/* Services Description */}
         <TextInput
-          label="Descrição dos Serviços Executados *"
+          ref={servicesRef}
+          label="Descrição dos Serviços Executados"
           value={formData.services}
           onChangeText={(text) => updateFormData("services", text)}
           placeholder="Serviços executados"
           multiline
           numberOfLines={4}
           maxLength={1290}
+          required
         />
 
         {/* Date and Time Sections */}
@@ -529,7 +518,8 @@ const CreateOrderNoteScreen = () => {
 
         {/* Technicians Selection */}
         <OptionSelector
-          label="Técnico 01 *"
+          ref={firstTecRef}
+          label="Técnico 01"
           placeholder="Selecione o técnico principal"
           options={tecs.map((tec) => ({
             id: tec.id,
@@ -537,6 +527,7 @@ const CreateOrderNoteScreen = () => {
           }))}
           selectedId={formData.first_tec}
           onSelect={(item) => updateFormData("first_tec", item.id)}
+          required
         />
 
         <OptionSelector
@@ -647,10 +638,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: 16,
   },
   halfInput: {
     flex: 1,
-    marginHorizontal: 4,
   },
 
   radioOption: {

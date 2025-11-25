@@ -82,6 +82,7 @@ const TextInput = forwardRef<TextInputRef, TextInputProps>(({
   return (
     <BaseInput
       {...props}
+      errorMessage={"Este campo é obrigatório"}
       ref={baseInputRef}
       keyboardType={getKeyboardType()}
       autoCapitalize={getAutoCapitalize()}
