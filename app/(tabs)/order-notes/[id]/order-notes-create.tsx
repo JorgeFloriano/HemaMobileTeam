@@ -16,6 +16,9 @@ import TimeInput, { TimeInputRef } from "@/src/components/TimeInput";
 import OptionSelector, {
   OptionSelectorRef,
 } from "@/src/components/OptionSelector";
+import MaterialSelector, {
+  MaterialSelectorRef,
+} from "@/src/components/MaterialSelector";
 import KeyboardAvoindingContainer from "@/src/components/KeyboardAvoidingContainer";
 
 interface Type {
@@ -41,6 +44,7 @@ interface Solution {
 interface Material {
   id: string;
   description: string;
+  unit: string;
 }
 
 interface Tec {
@@ -90,6 +94,8 @@ interface FormData {
   defect_id: string;
   cause_id: string;
   solution_id: string;
+  materials: any[];
+  material_ids_array: string;
   services: string;
   date: string;
   go_start: string;
@@ -127,6 +133,7 @@ const CreateOrderNoteScreen = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
+  const materialSelectorRef = useRef<MaterialSelectorRef>(null);
 
   const [formData, setFormData] = useState<FormData>({
     order_id: Array.isArray(id) ? id[0] : id || "",
@@ -137,6 +144,8 @@ const CreateOrderNoteScreen = () => {
     defect_id: "",
     cause_id: "",
     solution_id: "",
+    materials: [],
+    material_ids_array: "",
     services: "",
     date: new Date().toLocaleDateString("pt-BR"), // dd/mm/yyyy
     go_start: "",
@@ -210,9 +219,23 @@ const CreateOrderNoteScreen = () => {
   const endTimeRef = useRef<TimeInputRef>(null);
   const firstTecRef = useRef<OptionSelectorRef>(null);
 
-  const handleSubmit = async () => {
-    // Validation
+  // Handle materials change
+  const handleMaterialsChange = (selectedMaterials: any[]) => {
+  console.log("Selected materials:", selectedMaterials);
+  
+  // Update formData with the selected materials
+  setFormData(prev => ({
+    ...prev,
+    materials: selectedMaterials.map(material => ({
+      material_id: material.id,
+      quantity: parseFloat(material.quantity) || 0,
+    })),
+    material_ids_array: selectedMaterials.map(m => m.id).join(","),
+  }));
+};
 
+  const handleSubmit = async () => {
+    
     if (!formData.finished) {
       Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
       return;
@@ -423,13 +446,20 @@ const CreateOrderNoteScreen = () => {
         />
 
         <OptionSelector
-          label="Solução"
           ref={solutionRef}
+          label="Solução"
           placeholder="Selecione a solução"
           options={solutions}
           selectedId={formData.solution_id}
           onSelect={(item) => updateFormData("solution_id", item.id)}
           required
+        />
+
+        <MaterialSelector
+          ref={materialSelectorRef}
+          materials={materials as Material[]}
+          placeholder="Selecionar Material"
+          onMaterialsChange={handleMaterialsChange}
         />
 
         {/* Services Description */}
