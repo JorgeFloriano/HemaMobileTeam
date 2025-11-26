@@ -83,6 +83,7 @@ interface Order {
   req_time: string;
   req_descr: string;
   equipment: string;
+  hasNotes: boolean;
 }
 
 interface FormData {
@@ -159,6 +160,13 @@ const CreateOrderNoteScreen = () => {
     finished: "",
   });
 
+  console.log('order', order?.hasNotes);
+
+  // Handle order notes back show
+  const handleOrderNotesShow = () => {
+    router.push(`/order-notes/${id}/order-notes-show`);
+  };
+
   // Load all data with single API call
   const loadNoteCreationData = useCallback(async () => {
     try {
@@ -221,21 +229,20 @@ const CreateOrderNoteScreen = () => {
 
   // Handle materials change
   const handleMaterialsChange = (selectedMaterials: any[]) => {
-  console.log("Selected materials:", selectedMaterials);
-  
-  // Update formData with the selected materials
-  setFormData(prev => ({
-    ...prev,
-    materials: selectedMaterials.map(material => ({
-      material_id: material.id,
-      quantity: parseFloat(material.quantity) || 0,
-    })),
-    material_ids_array: selectedMaterials.map(m => m.id).join(","),
-  }));
-};
+    console.log("Selected materials:", selectedMaterials);
+
+    // Update formData with the selected materials
+    setFormData((prev) => ({
+      ...prev,
+      materials: selectedMaterials.map((material) => ({
+        material_id: material.id,
+        quantity: parseFloat(material.quantity) || 0,
+      })),
+      material_ids_array: selectedMaterials.map((m) => m.id).join(","),
+    }));
+  };
 
   const handleSubmit = async () => {
-    
     if (!formData.finished) {
       Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
       return;
@@ -382,6 +389,15 @@ const CreateOrderNoteScreen = () => {
             {order?.equipment || ""}
           </Text>
         </View>
+        {order?.hasNotes && (
+          <Button
+            title={"Ver anotações anteriores"}
+            onPress={handleOrderNotesShow}
+            variant="secondary"
+            disabled={loading}
+            style={{ marginBottom: 20 }}
+          />
+        )}
 
         {/* Equipment Information */}
         <TextInput

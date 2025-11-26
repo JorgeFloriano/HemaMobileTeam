@@ -5,12 +5,11 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  TextInput,
-  Modal,
   StyleSheet,
   Alert,
 } from "react-native";
 import OptionSelector, { OptionSelectorRef } from "./OptionSelector";
+import TextInput from "./TextInput";
 
 interface Material {
   id: string;
@@ -40,8 +39,13 @@ export interface MaterialSelectorRef {
 }
 
 const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
-  ({ materials, placeholder = "Selecione um material", onMaterialsChange }, ref) => {
-    const [selectedMaterials, setSelectedMaterials] = useState<SelectedMaterial[]>([]);
+  (
+    { materials, placeholder = "Selecione um material", onMaterialsChange },
+    ref
+  ) => {
+    const [selectedMaterials, setSelectedMaterials] = useState<
+      SelectedMaterial[]
+    >([]);
     const [selectedMaterialId, setSelectedMaterialId] = useState<string>("");
     const optionSelectorRef = React.useRef<OptionSelectorRef>(null);
 
@@ -53,14 +57,19 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
     }));
 
     // Handle material selection
-    const handleMaterialSelect = (material: { id: string; description: string }) => {
-      const selectedMaterial = materials.find(m => m.id === material.id);
-      
+    const handleMaterialSelect = (material: {
+      id: string;
+      description: string;
+    }) => {
+      const selectedMaterial = materials.find((m) => m.id === material.id);
+
       if (!selectedMaterial) return;
 
       // Check if material is already added
-      const isAlreadyAdded = selectedMaterials.some(m => m.id === material.id);
-      
+      const isAlreadyAdded = selectedMaterials.some(
+        (m) => m.id === material.id
+      );
+
       if (isAlreadyAdded) {
         Alert.alert(
           "Material já adicionado",
@@ -82,7 +91,7 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
       const updatedMaterials = [...selectedMaterials, newMaterial];
       setSelectedMaterials(updatedMaterials);
       setSelectedMaterialId("");
-      
+
       // Notify parent component
       onMaterialsChange?.(updatedMaterials);
     };
@@ -96,7 +105,7 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
       }
 
       // Update quantity
-      const updatedMaterials = selectedMaterials.map(material =>
+      const updatedMaterials = selectedMaterials.map((material) =>
         material.id === materialId ? { ...material, quantity } : material
       );
 
@@ -106,19 +115,20 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
 
     // Remove material from list
     const removeMaterial = (materialId: string) => {
-      const updatedMaterials = selectedMaterials.filter(material => material.id !== materialId);
+      const updatedMaterials = selectedMaterials.filter(
+        (material) => material.id !== materialId
+      );
       setSelectedMaterials(updatedMaterials);
       onMaterialsChange?.(updatedMaterials);
     };
 
     // Get selected material IDs as comma-separated string (like your original functionality)
     const getMaterialIdsArray = () => {
-      return selectedMaterials.map(material => material.id).join(",");
+      return selectedMaterials.map((material) => material.id).join(",");
     };
 
     return (
       <View style={styles.container}>
-        
         {/* Material Selection */}
         <OptionSelector
           ref={optionSelectorRef}
@@ -131,6 +141,7 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
 
         {/* Hidden field equivalent (for form data) */}
         <TextInput
+          onChangeText={getMaterialIdsArray}
           style={styles.hiddenInput}
           value={getMaterialIdsArray()}
           editable={false}
@@ -139,7 +150,7 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
         {/* Selected Materials List */}
         {selectedMaterials.length > 0 && (
           <View style={styles.materialsList}>
-            <Text style={styles.listTitle}>Materiais Utilizados:</Text>
+            <Text style={styles.listTitle}>Lista de Materiais:</Text>
             <ScrollView style={styles.scrollView}>
               {selectedMaterials.map((material) => (
                 <MaterialItem
@@ -164,14 +175,18 @@ interface MaterialItemProps {
   onRemove: (materialId: string) => void;
 }
 
-const MaterialItem: React.FC<MaterialItemProps> = ({ material, onQuantityChange, onRemove }) => {
+const MaterialItem: React.FC<MaterialItemProps> = ({
+  material,
+  onQuantityChange,
+  onRemove,
+}) => {
   const [quantity, setQuantity] = useState(material.quantity);
 
   const handleQuantityChange = (text: string) => {
     // Allow only numbers and decimal point
     const cleanedText = text.replace(/[^0-9.]/g, "");
     setQuantity(cleanedText);
-    
+
     // Update parent immediately for real-time validation
     onQuantityChange(material.id, cleanedText);
   };
@@ -192,7 +207,6 @@ const MaterialItem: React.FC<MaterialItemProps> = ({ material, onQuantityChange,
         onChangeText={handleQuantityChange}
         placeholder="Qtd"
         keyboardType="decimal-pad"
-        placeholderTextColor="#6b7280"
       />
 
       {/* Unit */}
@@ -225,7 +239,6 @@ const styles = StyleSheet.create({
     display: "none", // Hidden equivalent
   },
   materialsList: {
-    marginTop: 16,
     borderWidth: 1,
     borderColor: "#ced4da",
     borderRadius: 8,
@@ -233,24 +246,17 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   listTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
     marginBottom: 8,
-    color: "#495057",
+    color: "#333",
   },
   scrollView: {
-    maxHeight: 200,
-    backgroundColor: "white",
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: "#e9ecef",
+    paddingVertical: 6,
   },
   materialItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
   },
   materialDescription: {
     flex: 1,
@@ -262,16 +268,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   quantityInput: {
-    width: 80,
-    borderWidth: 1,
-    borderColor: "#ced4da",
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    fontSize: 14,
-    textAlign: "center",
-    backgroundColor: "white",
-    marginRight: 8,
+    width: 60,
   },
   unitContainer: {
     width: 50,
@@ -281,21 +278,22 @@ const styles = StyleSheet.create({
   },
   unitText: {
     fontSize: 14,
-    color: "#6b7280",
+    color: "#333",
     fontWeight: "500",
   },
   removeButton: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#dc3545",
+    borderWidth: 1,
+    borderColor: "#ced4da",
+    backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
   },
   removeButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
+    color: "#333",
+    fontSize: 24,
     lineHeight: 18,
   },
 });
