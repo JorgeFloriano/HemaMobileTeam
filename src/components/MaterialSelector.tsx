@@ -123,12 +123,12 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
     };
 
     // Get selected material IDs as comma-separated string (like your original functionality)
-    const getMaterialIdsArray = () => {
-      return selectedMaterials.map((material) => material.id).join(",");
-    };
+    // const getMaterialIdsArray = () => {
+    //   return selectedMaterials.map((material) => material.id).join(",");
+    // };
 
     return (
-      <View style={styles.container}>
+      <View>
         {/* Material Selection */}
         <OptionSelector
           ref={optionSelectorRef}
@@ -139,18 +139,9 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
           label="Registrar Materiais Utilizados"
         />
 
-        {/* Hidden field equivalent (for form data) */}
-        <TextInput
-          onChangeText={getMaterialIdsArray}
-          style={styles.hiddenInput}
-          value={getMaterialIdsArray()}
-          editable={false}
-        />
-
         {/* Selected Materials List */}
         {selectedMaterials.length > 0 && (
           <View style={styles.materialsList}>
-            <Text style={styles.listTitle}>Lista de Materiais:</Text>
             <ScrollView style={styles.scrollView}>
               {selectedMaterials.map((material) => (
                 <MaterialItem
@@ -163,6 +154,15 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
             </ScrollView>
           </View>
         )}
+
+        {/* Hidden field equivalent (for form data) */}
+        {/* <TextInput
+          onChangeText={getMaterialIdsArray}
+          style={styles.hiddenInput}
+          value={getMaterialIdsArray()}
+          editable={false}
+        /> */}
+
       </View>
     );
   }
@@ -226,33 +226,24 @@ const MaterialItem: React.FC<MaterialItemProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
-    color: "#333",
-  },
-  hiddenInput: {
-    display: "none", // Hidden equivalent
-  },
+  // hiddenInput: {
+  //   display: "none",
+  //   padding: 0,
+  //   margin: 0,
+  // },
+
   materialsList: {
     borderWidth: 1,
     borderColor: "#ced4da",
     borderRadius: 8,
     backgroundColor: "#f8f9fa",
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    marginBottom: 20,
   },
-  listTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-    color: "#333",
-  },
+  
   scrollView: {
-    paddingVertical: 6,
+    paddingTop: 6,
   },
   materialItem: {
     flexDirection: "row",

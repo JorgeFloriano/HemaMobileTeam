@@ -107,6 +107,9 @@ interface FormData {
   back_end: string;
   first_tec: string;
   second_tec: string;
+  cl_name: string;
+  cl_function: string;
+  cl_contact: string;
   finished: string;
 }
 
@@ -135,6 +138,7 @@ const CreateOrderNoteScreen = () => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
   const materialSelectorRef = useRef<MaterialSelectorRef>(null);
+  const [showClientFields, setShowClientFields] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     order_id: Array.isArray(id) ? id[0] : id || "",
@@ -157,10 +161,11 @@ const CreateOrderNoteScreen = () => {
     back_end: "",
     first_tec: "",
     second_tec: "0",
+    cl_name: "",
+    cl_function: "",
+    cl_contact: "",
     finished: "",
   });
-
-  console.log('order', order?.hasNotes);
 
   // Handle order notes back show
   const handleOrderNotesShow = () => {
@@ -590,12 +595,44 @@ const CreateOrderNoteScreen = () => {
           onSelect={(item) => updateFormData("second_tec", item.id)}
         />
 
+        {/* Client Fields - Conditionally Rendered */}
+        {showClientFields && (
+          <View>
+            <TextInput
+              label="Nome do Cliente"
+              value={formData.cl_name}
+              onChangeText={(text) => updateFormData("cl_name", text)}
+              placeholder="Nome do cliente"
+              maxLength={40}
+            />
+
+            <TextInput
+              label="Função"
+              value={formData.cl_function}
+              onChangeText={(text) => updateFormData("cl_function", text)}
+              placeholder="Função do cliente"
+              maxLength={40}
+            />
+
+            <TextInput
+              label="Contato"
+              value={formData.cl_contact}
+              onChangeText={(text) => updateFormData("cl_contact", text)}
+              placeholder="Contato do cliente"
+              maxLength={40}
+            />
+          </View>
+        )}
+
         {/* Finish Options */}
-        <Text style={styles.sectionTitle}>Status do Atendimento *</Text>
+        <Text style={styles.sectionTitle}>Status do Atendimento</Text>
 
         <TouchableOpacity
           style={styles.radioOption}
-          onPress={() => updateFormData("finished", "0")}
+          onPress={() => {
+            updateFormData("finished", "0");
+            setShowClientFields(false); // Hide client fields for "Salvar"
+          }}
         >
           <View
             style={[
@@ -608,7 +645,10 @@ const CreateOrderNoteScreen = () => {
 
         <TouchableOpacity
           style={styles.radioOption}
-          onPress={() => updateFormData("finished", "1")}
+          onPress={() => {
+            updateFormData("finished", "1");
+            setShowClientFields(true); // Show client fields for "Concluir"
+          }}
         >
           <View
             style={[
