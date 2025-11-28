@@ -19,6 +19,7 @@ import OptionSelector, {
 import MaterialSelector, {
   MaterialSelectorRef,
 } from "@/src/components/MaterialSelector";
+import SignaturePad from "@/src/components/SignaturePad";
 import KeyboardAvoindingContainer from "@/src/components/KeyboardAvoidingContainer";
 
 interface Type {
@@ -106,10 +107,13 @@ interface FormData {
   back_start: string;
   back_end: string;
   first_tec: string;
+  sign_t_1: string;
   second_tec: string;
+  sign_t_2: string;
   cl_name: string;
   cl_function: string;
   cl_contact: string;
+  sign_cl: string;
   finished: string;
 }
 
@@ -138,6 +142,9 @@ const CreateOrderNoteScreen = () => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
   const materialSelectorRef = useRef<MaterialSelectorRef>(null);
+  const [signTec1, setSignTec1] = useState("");
+  const [signTec2, setSignTec2] = useState("");
+  const [signClient, setSignClient] = useState("");
   const [showClientFields, setShowClientFields] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -160,10 +167,13 @@ const CreateOrderNoteScreen = () => {
     back_start: "",
     back_end: "",
     first_tec: "",
+    sign_t_1: "",
     second_tec: "0",
+    sign_t_2: "",
     cl_name: "",
     cl_function: "",
     cl_contact: "",
+    sign_cl: "",
     finished: "",
   });
 
@@ -247,9 +257,31 @@ const CreateOrderNoteScreen = () => {
     }));
   };
 
+  // Handle signature saves
+  const handleTec1Signature = (signatureData: string) => {
+    setSignTec1(signatureData);
+    updateFormData("sign_t_1", signatureData);
+  };
+
+  const handleTec2Signature = (signatureData: string) => {
+    setSignTec2(signatureData);
+    updateFormData("sign_t_2", signatureData);
+  };
+
+  const handleClientSignature = (signatureData: string) => {
+    setSignClient(signatureData);
+    updateFormData("sign_cl", signatureData);
+  };
+
   const handleSubmit = async () => {
     if (!formData.finished) {
       Alert.alert("Erro", "Por favor selecione se deseja salvar ou concluir");
+      return;
+    }
+
+    // Signature validation
+    if (!formData.sign_t_1) {
+      Alert.alert("Erro", "Assinatura do Técnico 01 é obrigatória");
       return;
     }
 
@@ -287,11 +319,17 @@ const CreateOrderNoteScreen = () => {
       return;
     }
 
+    // Prepare data for API - signatures are already base64 strings
+    const submitData = {
+      ...formData,
+      // The signature fields are already base64 strings, ready for Laravel
+    };
+
     setLoading(true);
     Keyboard.dismiss();
 
     try {
-      const response = await api.post("/notes", formData);
+      const response = await api.post("/notes", submitData);
 
       if (response.data.success) {
         Alert.alert("Sucesso", response.data.message, [
@@ -581,6 +619,16 @@ const CreateOrderNoteScreen = () => {
           required
         />
 
+        {/* Technician 1 Signature */}
+
+        <Text style={styles.signatureLabel}>Assinatura do Técnico 01</Text>
+        <SignaturePad
+          title="Assinatura do Técnico 01"
+          buttonText="Assinar (Técnico 01)"
+          onSave={handleTec1Signature}
+          required={true}
+        />
+
         <OptionSelector
           label="Técnico 02"
           placeholder="Selecione o técnico 02"
@@ -593,6 +641,15 @@ const CreateOrderNoteScreen = () => {
           ]}
           selectedId={formData.second_tec}
           onSelect={(item) => updateFormData("second_tec", item.id)}
+        />
+
+        {/* Technician 2 Signature */}
+
+        <SignaturePad
+          title="Assinatura do Técnico 02"
+          buttonText="Assinar (Técnico 02)"
+          onSave={handleTec2Signature}
+          required={false} // Optional
         />
 
         {/* Client Fields - Conditionally Rendered */}
@@ -620,6 +677,12 @@ const CreateOrderNoteScreen = () => {
               onChangeText={(text) => updateFormData("cl_contact", text)}
               placeholder="Contato do cliente"
               maxLength={40}
+            />
+
+            <SignaturePad
+              title="Assinatura do Cliente"
+              buttonText="Assinar (Cliente)"
+              onSave={handleClientSignature}
             />
           </View>
         )}
@@ -752,6 +815,7 @@ const styles = StyleSheet.create({
     borderColor: "black",
     backgroundColor: "white",
   },
+
   radioLabel: {
     fontSize: 16,
     color: "#333",
@@ -761,6 +825,29 @@ const styles = StyleSheet.create({
     marginTop: 16,
     width: "auto",
     alignSelf: "flex-start",
+  },
+
+  signatureSection: {
+    marginBottom: 20,
+    padding: 16,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 8,
+  },
+  signatureLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#333",
+  },
+  signatureStatus: {
+    fontSize: 14,
+    color: "#28a745",
+    marginTop: 8,
+  },
+  signatureStatusError: {
+    fontSize: 14,
+    color: "#dc3545",
+    marginTop: 8,
   },
 });
 
