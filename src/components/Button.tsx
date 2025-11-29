@@ -3,6 +3,7 @@ import { Text, TextStyle, TouchableOpacity, ViewStyle } from "react-native";
 
 interface ButtonProps {
   title: string | React.ReactNode;
+  icon?: React.ReactNode;
   onPress: () => void;
   variant?: "primary" | "secondary" | "icon";
   disabled?: boolean;
@@ -12,6 +13,7 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({
   title,
+  icon,
   onPress,
   variant = "primary",
   disabled = false,
@@ -19,7 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   textStyle,
 }) => {
   const buttonStyle = {
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
     alignItems: "center" as const,
@@ -49,7 +51,7 @@ const Button: React.FC<ButtonProps> = ({
     ...(variant === "secondary" && {
       color: "#170258ff",
     }),
-    ...textStyle,
+    ...textStyle, 
   };
 
   return (
@@ -58,7 +60,7 @@ const Button: React.FC<ButtonProps> = ({
       onPress={onPress}
       disabled={disabled}
     >
-      <Text style={buttonTextStyle}>{title}</Text>
+      <Text style={buttonTextStyle}>{icon || ''} {title}</Text>
     </TouchableOpacity>
   );
 };

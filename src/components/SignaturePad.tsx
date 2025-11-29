@@ -1,4 +1,7 @@
 // src/components/SignaturePadBetter.tsx
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, { useRef, useState } from "react";
 import {
   View,
@@ -13,7 +16,7 @@ import Button from "./Button";
 
 interface SignaturePadProps {
   title: string;
-  buttonText: string;
+  buttonText?: string | React.ReactNode;
   onSave: (signatureData: string) => void;
   required?: boolean;
 }
@@ -29,8 +32,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   const signatureRef = useRef<any>(null);
 
   const { width: screenWidth } = Dimensions.get("window");
-  const canvasWidth = screenWidth - 80;
-  const canvasHeight = 200;
+  const canvasWidth = screenWidth;
+  const canvasHeight = 220;
 
   const handleOK = (signature: string) => {
     onSave(signature);
@@ -60,9 +63,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   return (
     <View style={styles.container}>
       <Button
-        title={buttonText}
+        title={buttonText || <MaterialCommunityIcons name="draw-pen" size={31} color="#1b0363ff" />}
         onPress={() => setModalVisible(true)}
-        variant="secondary"
+        variant="icon"
         style={styles.signatureButton}
       />
 
@@ -83,10 +86,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             </View>
 
             {/* Signature Area */}
-            <View style={styles.signatureArea}>
-              <Text style={styles.instructionText}>
-                Desenhe sua assinatura na área abaixo
-              </Text>
+            <View>
               
               <View style={[styles.signaturePad, { width: canvasWidth, height: canvasHeight }]}>
                 <Signature
@@ -95,7 +95,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                   onEmpty={() => setHasSignature(false)}
                   onClear={() => setHasSignature(false)}
                   descriptionText=""
-                  clearText="Limpar"
+                  clearText="Apagar"
                   confirmText="Confirmar"
                   webStyle={style}
                   backgroundColor="white"
@@ -108,13 +108,15 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             {/* Modal Footer */}
             <View style={styles.modalFooter}>
               <Button
-                title="Limpar"
+                title="Apagar"
+                icon={<FontAwesome6 name="eraser" size={24} color="black" />}
                 onPress={handleClear}
                 variant="secondary"
                 style={styles.footerButton}
               />
               <Button
                 title="Confirmar"
+                icon={<FontAwesome name="check" size={24} color="white" />}
                 onPress={handleConfirm}
                 variant="primary"
                 style={styles.footerButton}
@@ -134,7 +136,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   signatureButton: {
-    alignSelf: "flex-start",
+    borderRadius: 8,
+    alignItems: "center",
   },
   modalOverlay: {
     flex: 1,
@@ -169,9 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#6b7280",
   },
-  signatureArea: {
-    padding: 16,
-  },
+  
   instructionText: {
     fontSize: 14,
     color: "#6b7280",
@@ -180,9 +181,6 @@ const styles = StyleSheet.create({
   },
   signaturePad: {
     backgroundColor: "white",
-    borderWidth: 2,
-    borderColor: "#e5e7eb",
-    borderRadius: 8,
     overflow: "hidden",
   },
   modalFooter: {

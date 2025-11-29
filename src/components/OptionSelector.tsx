@@ -1,4 +1,5 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import {
   Modal,
   ScrollView,
@@ -164,7 +165,7 @@ const OptionSelector = forwardRef<OptionSelectorRef, OptionSelectorProps>(({
                     {option.description}
                   </Text>
                   {selectedId === option.id && (
-                    <Text style={styles.checkmark}>✓</Text>
+                    <Text style={styles.checkmark}><FontAwesome name="check" size={24} color="white" /></Text>
                   )}
                 </TouchableOpacity>
               ))}

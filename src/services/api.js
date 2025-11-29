@@ -5,8 +5,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // Use your computer's IP address, not localhost!
 // Find your IP: ipconfig (Windows) or ifconfig (Linux/Mac)
 
-//const API_BASE_URL = "http://192.168.0.110/Hema/public/api"; // Replace with your IP, localhost
-const API_BASE_URL = "http://10.217.84.214/Hema/public/api"; // Replace with your IP, localhost
+const API_BASE_URL = "http://192.168.0.110/Hema/public/api"; // Replace with your IP, localhost
+// const API_BASE_URL = "http://10.217.84.214/Hema/public/api"; // Replace with your IP, localhost
 //const API_BASE_URL = "https://hematest.jldev.app.br/api"; // Remote server
 
 const api = axios.create({
@@ -33,9 +33,9 @@ api.interceptors.request.use(async (config) => {
   if (!csrfToken) {
     try {
       console.log("🔐 Setting up CSRF token...");
-      //await axios.get('https://hematest.jldev.app.br/sanctum/csrf-cookie', {
-      await axios.get("http://10.217.84.214/Hema/public/sanctum/csrf-cookie", {
-      //await axios.get("http://192.168.0.110/Hema/public/sanctum/csrf-cookie", {
+      await axios.get("http://192.168.0.110/Hema/public/sanctum/csrf-cookie", {
+      // await axios.get("http://10.217.84.214/Hema/public/sanctum/csrf-cookie", {
+          //await axios.get('https://hematest.jldev.app.br/sanctum/csrf-cookie', {
         withCredentials: true,
       });
       csrfToken = true; // Token is now in cookies

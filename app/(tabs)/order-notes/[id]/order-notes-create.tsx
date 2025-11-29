@@ -1,3 +1,4 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
@@ -142,9 +143,6 @@ const CreateOrderNoteScreen = () => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
   const materialSelectorRef = useRef<MaterialSelectorRef>(null);
-  const [signTec1, setSignTec1] = useState("");
-  const [signTec2, setSignTec2] = useState("");
-  const [signClient, setSignClient] = useState("");
   const [showClientFields, setShowClientFields] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -259,17 +257,14 @@ const CreateOrderNoteScreen = () => {
 
   // Handle signature saves
   const handleTec1Signature = (signatureData: string) => {
-    setSignTec1(signatureData);
     updateFormData("sign_t_1", signatureData);
   };
 
   const handleTec2Signature = (signatureData: string) => {
-    setSignTec2(signatureData);
     updateFormData("sign_t_2", signatureData);
   };
 
   const handleClientSignature = (signatureData: string) => {
-    setSignClient(signatureData);
     updateFormData("sign_cl", signatureData);
   };
 
@@ -606,62 +601,78 @@ const CreateOrderNoteScreen = () => {
         </View>
 
         {/* Technicians Selection */}
-        <OptionSelector
-          ref={firstTecRef}
-          label="Técnico 01"
-          placeholder="Selecione o técnico principal"
-          options={tecs.map((tec) => ({
-            id: tec.id,
-            description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
-          }))}
-          selectedId={formData.first_tec}
-          onSelect={(item) => updateFormData("first_tec", item.id)}
-          required
-        />
+        {/* Technician 1 */}
+        <View style={styles.tecRow}>
+          <View style={styles.inputRow}>
+            <OptionSelector
+              ref={firstTecRef}
+              label="Técnico 01"
+              placeholder="Selecione o técnico principal"
+              options={tecs.map((tec) => ({
+                id: tec.id,
+                description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
+              }))}
+              selectedId={formData.first_tec}
+              onSelect={(item) => updateFormData("first_tec", item.id)}
+              required
+            />
+          </View>
+          <View style={styles.buttonRow}>
+            <SignaturePad
+              title="Assinatura do Técnico 01"
+              onSave={handleTec1Signature}
+              //required={true}
+            />
+          </View>
+        </View>
 
-        {/* Technician 1 Signature */}
-
-        <Text style={styles.signatureLabel}>Assinatura do Técnico 01</Text>
-        <SignaturePad
-          title="Assinatura do Técnico 01"
-          buttonText="Assinar (Técnico 01)"
-          onSave={handleTec1Signature}
-          required={true}
-        />
-
-        <OptionSelector
-          label="Técnico 02"
-          placeholder="Selecione o técnico 02"
-          options={[
-            { id: "0", description: "Selecione o Técnico 02" },
-            ...tecs.map((tec) => ({
-              id: tec.id,
-              description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
-            })),
-          ]}
-          selectedId={formData.second_tec}
-          onSelect={(item) => updateFormData("second_tec", item.id)}
-        />
-
-        {/* Technician 2 Signature */}
-
-        <SignaturePad
-          title="Assinatura do Técnico 02"
-          buttonText="Assinar (Técnico 02)"
-          onSave={handleTec2Signature}
-          required={false} // Optional
-        />
+        {/* Technician 2 */}
+        <View style={styles.tecRow}>
+          <View style={styles.inputRow}>
+            <OptionSelector
+              label="Técnico 02"
+              placeholder="Selecione o técnico 02"
+              options={[
+                { id: "0", description: "Selecione o Técnico 02" },
+                ...tecs.map((tec) => ({
+                  id: tec.id,
+                  description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
+                })),
+              ]}
+              selectedId={formData.second_tec}
+              onSelect={(item) => updateFormData("second_tec", item.id)}
+            />
+          </View>
+          <View style={styles.buttonRow}>
+            {/* Technician 2 Signature */}
+            <SignaturePad
+              title="Assinatura do Técnico 02"
+              onSave={handleTec2Signature}
+            />
+          </View>
+        </View>
 
         {/* Client Fields - Conditionally Rendered */}
         {showClientFields && (
           <View>
-            <TextInput
-              label="Nome do Cliente"
-              value={formData.cl_name}
-              onChangeText={(text) => updateFormData("cl_name", text)}
-              placeholder="Nome do cliente"
-              maxLength={40}
-            />
+            {/* Client */}
+            <View style={styles.tecRow}>
+              <View style={styles.inputRow}>
+                <TextInput
+                  label="Nome do Cliente"
+                  value={formData.cl_name}
+                  onChangeText={(text) => updateFormData("cl_name", text)}
+                  placeholder="Nome do cliente"
+                  maxLength={40}
+                />
+              </View>
+              <View style={styles.buttonRow}>
+                <SignaturePad
+                  title="Assinatura do Cliente"
+                  onSave={handleClientSignature}
+                />
+              </View>
+            </View>
 
             <TextInput
               label="Função"
@@ -677,12 +688,6 @@ const CreateOrderNoteScreen = () => {
               onChangeText={(text) => updateFormData("cl_contact", text)}
               placeholder="Contato do cliente"
               maxLength={40}
-            />
-
-            <SignaturePad
-              title="Assinatura do Cliente"
-              buttonText="Assinar (Cliente)"
-              onSave={handleClientSignature}
             />
           </View>
         )}
@@ -703,7 +708,7 @@ const CreateOrderNoteScreen = () => {
               formData.finished === "0" && styles.radioSelected,
             ]}
           />
-          <Text style={styles.radioLabel}>Salvar (atendimento pendente)</Text>
+          <Text style={styles.radioLabel}><FontAwesome name="save" size={24} color="black" /> - Salvar (atendimento pendente)</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -720,11 +725,12 @@ const CreateOrderNoteScreen = () => {
             ]}
           />
           <Text style={styles.radioLabel}>
-            Concluir (atendimento finalizado)
+            <FontAwesome name="check-square-o" size={24} color="black" /> - Concluir (atendimento finalizado)
           </Text>
         </TouchableOpacity>
         <Button
           title={loading ? "Processando..." : "Confirmar"}
+          icon={<FontAwesome name="check" size={24} color="white"/>}
           onPress={handleSubmit}
           variant="primary"
           disabled={loading}
@@ -793,10 +799,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  tecRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 16,
+  },
+  inputRow: {
+    flex: 1,
+  },
+  buttonRow: {
+    alignItems: "flex-end",
+  },
+
   radioOption: {
     flexDirection: "row",
     alignItems: "center",
-
     padding: 8,
   },
   radio: {
@@ -833,6 +850,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f9fa",
     borderRadius: 8,
   },
+
   signatureLabel: {
     fontSize: 16,
     fontWeight: "600",
@@ -848,6 +866,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#dc3545",
     marginTop: 8,
+  },
+  previewContainer: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#dee2e6",
+  },
+  previewTitle: {
+    fontSize: 12,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  previewImage: {
+    width: 100,
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  previewText: {
+    fontSize: 10,
+    color: "#666",
+    marginTop: 4,
   },
 });
 
