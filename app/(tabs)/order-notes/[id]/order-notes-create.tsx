@@ -145,18 +145,48 @@ const CreateOrderNoteScreen = () => {
   const materialSelectorRef = useRef<MaterialSelectorRef>(null);
   const [showClientFields, setShowClientFields] = useState(false);
 
+  // const [formData, setFormData] = useState<FormData>({
+  //   order_id: Array.isArray(id) ? id[0] : id || "",
+  //   equip_mod: "",
+  //   equip_id: "",
+  //   equip_type: "",
+  //   note_type_id: "",
+  //   defect_id: "",
+  //   cause_id: "",
+  //   solution_id: "",
+  //   materials: [],
+  //   material_ids_array: "",
+  //   services: "",
+  //   date: new Date().toLocaleDateString("pt-BR"), // dd/mm/yyyy
+  //   go_start: "",
+  //   go_end: "",
+  //   start: new Date().toTimeString().slice(0, 5), // HH:MM
+  //   end: new Date().toTimeString().slice(0, 5), // HH:MM
+  //   back_start: "",
+  //   back_end: "",
+  //   first_tec: "",
+  //   sign_t_1: "",
+  //   second_tec: "0",
+  //   sign_t_2: "",
+  //   cl_name: "",
+  //   cl_function: "",
+  //   cl_contact: "",
+  //   sign_cl: "",
+  //   finished: "",
+  // });
+
   const [formData, setFormData] = useState<FormData>({
     order_id: Array.isArray(id) ? id[0] : id || "",
-    equip_mod: "",
-    equip_id: "",
-    equip_type: "",
-    note_type_id: "",
-    defect_id: "",
-    cause_id: "",
-    solution_id: "",
+    equip_mod: "Modelo test",
+    equip_id: "99999",
+    equip_type: "equip tipe test",
+    note_type_id: "3",
+    defect_id: "3",
+    cause_id: "3",
+    solution_id: "3",
     materials: [],
     material_ids_array: "",
-    services: "",
+    services: "Sevices test",
     date: new Date().toLocaleDateString("pt-BR"), // dd/mm/yyyy
     go_start: "",
     go_end: "",
@@ -324,7 +354,7 @@ const CreateOrderNoteScreen = () => {
     Keyboard.dismiss();
 
     try {
-      const response = await api.post("/notes", submitData);
+      const response = await api.post("/technician/orders", submitData);
 
       if (response.data.success) {
         Alert.alert("Sucesso", response.data.message, [

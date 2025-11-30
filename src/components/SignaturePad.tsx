@@ -54,11 +54,31 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     setModalVisible(false);
   };
 
-  const style = `
-    .m-signature-pad--footer { display: none; margin: 0px; }
-    .m-signature-pad { box-shadow: none; border: none; }
-    body, html { margin: 0; padding: 0; }
-  `;
+  const webStyle = `
+  .m-signature-pad--footer { display: none; margin: 0px; }
+  .m-signature-pad { 
+    box-shadow: none; 
+    border: none; 
+    height: ${canvasHeight}px;
+    width: ${canvasWidth}px;
+  }
+  body, html { 
+    margin: 0; 
+    padding: 0; 
+    width: ${canvasWidth}px; 
+    height: ${canvasHeight}px;
+  }
+  .m-signature-pad--body { border: none; }
+  .m-signature-pad--body canvas { 
+    border-radius: 8px;
+    width: ${canvasWidth}px !important;
+    height: ${canvasHeight}px !important;
+  }
+  canvas {
+    max-width: ${canvasWidth}px;
+    max-height: ${canvasHeight}px;
+  }
+`;
 
   return (
     <View style={styles.container}>
@@ -97,7 +117,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                   descriptionText=""
                   clearText="Apagar"
                   confirmText="Confirmar"
-                  webStyle={style}
+                  webStyle={webStyle}
                   backgroundColor="white"
                   penColor="black"
                   imageType="image/png"
