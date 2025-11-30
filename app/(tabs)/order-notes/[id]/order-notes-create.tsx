@@ -602,7 +602,7 @@ const CreateOrderNoteScreen = () => {
           <View style={styles.halfInput}>
             <TimeInput
               ref={endTimeRef}
-              label="Término (execução)"
+              label="Fim (execução)"
               value={formData.end}
               onChangeText={(text) => updateFormData("end", text)}
               placeholder="HH:MM"

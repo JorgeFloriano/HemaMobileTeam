@@ -236,7 +236,7 @@ const OrderDetailScreen = () => {
                       <View style={styles.materialsRow}>
                         <Text style={styles.materialLabel}>Horário:</Text>
                         <Text style={styles.materialValue}>
-                          Início: {formatTime(note.start)}h - Término:{" "}
+                          Início: {formatTime(note.start)}h - Fim:{" "}
                           {formatTime(note.end)}h
                         </Text>
                       </View>
