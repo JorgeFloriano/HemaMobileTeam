@@ -1,7 +1,7 @@
 // src/components/SignaturePadBetter.tsx
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React, { useRef, useState } from "react";
 import {
   View,
@@ -83,7 +83,15 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   return (
     <View style={styles.container}>
       <Button
-        title={buttonText || <MaterialCommunityIcons name="draw-pen" size={31} color="#1b0363ff" />}
+        title={
+          buttonText || (
+            <MaterialCommunityIcons
+              name="draw-pen"
+              size={31}
+              color="#1b0363ff"
+            />
+          )
+        }
         onPress={() => setModalVisible(true)}
         variant="icon"
         style={styles.signatureButton}
@@ -100,15 +108,22 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             {/* Modal Header */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{title}</Text>
-              <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+              <TouchableOpacity
+                onPress={handleClose}
+                style={styles.closeButton}
+              >
                 <Text style={styles.closeButtonText}>×</Text>
               </TouchableOpacity>
             </View>
 
             {/* Signature Area */}
             <View>
-              
-              <View style={[styles.signaturePad, { width: canvasWidth, height: canvasHeight }]}>
+              <View
+                style={[
+                  styles.signaturePad,
+                  { width: canvasWidth, height: canvasHeight },
+                ]}
+              >
                 <Signature
                   ref={signatureRef}
                   onOK={handleOK}
@@ -121,6 +136,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                   backgroundColor="white"
                   penColor="black"
                   imageType="image/png"
+                  minWidth={2} // Increased from 2
+                  maxWidth={3} // Increased from 3
+                  dotSize={3} // Increased from 3
                 />
               </View>
             </View>
@@ -192,7 +210,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#6b7280",
   },
-  
+
   instructionText: {
     fontSize: 14,
     color: "#6b7280",
