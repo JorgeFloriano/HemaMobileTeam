@@ -29,7 +29,7 @@ const OrderDetailScreen = () => {
         setLoading(true);
       }
       const response = await api.get<{ order: Order }>(
-        `/technician/orders/${id}`
+        `/notes/show/${id}`
       );
       setOrder(response.data.order);
       console.log("Order loaded:", response.data.order);

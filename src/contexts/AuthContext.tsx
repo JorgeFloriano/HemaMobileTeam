@@ -10,6 +10,7 @@ interface User {
   email?: string;
   function?: string;
   isAdmin?: boolean;
+  tecId?: string;
 }
 
 interface AuthContextType {

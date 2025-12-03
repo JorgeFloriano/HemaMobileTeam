@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/contexts/AuthContext";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -80,6 +81,7 @@ interface Order {
   sector: string;
   user: {
     name: string;
+    surname: string;
   };
   req_date: string;
   req_time: string;
@@ -132,7 +134,7 @@ interface ApiResponse {
 const CreateOrderNoteScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-
+  const { user } = useAuth();
   const [types, setTypes] = useState<Type[]>([]);
   const [defects, setDefects] = useState<Defect[]>([]);
   const [causes, setCauses] = useState<Cause[]>([]);
@@ -164,7 +166,7 @@ const CreateOrderNoteScreen = () => {
     end: new Date().toTimeString().slice(0, 5), // HH:MM
     back_start: "",
     back_end: "",
-    first_tec: "",
+    first_tec: user?.tecId || "", // Auto-fill with authenticated user ID
     sign_t_1: "",
     second_tec: "0",
     sign_t_2: "",
@@ -355,7 +357,7 @@ const CreateOrderNoteScreen = () => {
     Keyboard.dismiss();
 
     try {
-      const response = await api.post("/technician/orders", submitData);
+      const response = await api.post("/notes", submitData);
 
       if (response.data.success) {
         Alert.alert("Sucesso", response.data.message, [
@@ -442,7 +444,7 @@ const CreateOrderNoteScreen = () => {
           </Text>
           <Text style={styles.headerText}>
             <Text style={styles.headerLabel}>Solicitante: </Text>
-            {order?.user?.name || ""}
+            {order?.user?.name || ""} {order?.user?.surname || ""}
           </Text>
           <Text style={styles.headerText}>
             <Text style={styles.headerLabel}>Data e Hora: </Text>

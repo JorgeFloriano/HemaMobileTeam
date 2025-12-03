@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Keyboard,
 } from "react-native";
 
 interface Option {
@@ -76,6 +77,7 @@ const OptionSelector = forwardRef<OptionSelectorRef, OptionSelectorProps>(({
 
   const handleOpenModal = () => {
     setModalVisible(true);
+     Keyboard.dismiss();
     // Clear error when user interacts with the selector
     if (localError) {
       setLocalError(false);
