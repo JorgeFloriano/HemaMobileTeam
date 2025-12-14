@@ -16,23 +16,34 @@
     "ios": {
       "userInterfaceStyle": "light",
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.HemaMobileTeam"
+      "bundleIdentifier": "com.jldev.hema.team"
     },
     "android": {
+      "package": "com.jldev.hema.team",
+      "googleServicesFile": "./google-services.json",
       "userInterfaceStyle": "light",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo_icon.png",
-        "backgroundColor": "#270984ff"
+        "backgroundColor": "#270984"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.HemaMobileTeam"
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/logo2_hema.png"
     },
     "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notificationicon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/sounds/notificationsound.wav"
+          ]
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -41,9 +52,9 @@
           "imageWidth": 150,
           "imageHeight": 150,
           "resizeMode": "contain",
-          "backgroundColor": "#270984ff",
+          "backgroundColor": "#270984",
           "dark": {
-            "backgroundColor": "#270984ff"
+            "backgroundColor": "#270984"
           }
         }
       ],
@@ -54,7 +65,13 @@
       "reactCompiler": true
     },
     "extra": {
-      "router": {}
-    }
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "92df9d74-7ac5-4e13-a69c-ac531fb39397"
+      }
+    },
+    "owner": "jorge.luis"
   }
 }

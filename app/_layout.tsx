@@ -3,12 +3,24 @@ import { Stack, usePathname, useRouter } from "expo-router";
 import { ActivityIndicator, View, StatusBar } from "react-native";
 import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
 import { useEffect } from "react";
+import { NotificationProvider } from "@/context/NotificationContext";
+import * as Notifications from "expo-notifications";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldShowAlert: true,
+  }),
+});
 
 function RootLayoutContent() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   // FIXED: Proper authentication check
   useEffect(() => {
     if (!isLoading) {
@@ -49,8 +61,10 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootLayoutContent />
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <RootLayoutContent />
+      </AuthProvider>
+    </NotificationProvider>
   );
 }

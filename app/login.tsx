@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { authService } from "@/src/services/auth";
 import { useAuth } from "@/src/contexts/AuthContext";
-//import api from "@/src/services/api";
 import TextInput from "@/src/components/TextInput";
 import PasswordInput from "@/src/components/PasswordInput";
+import { useNotification } from "@/context/NotificationContext";
 
 import {
   View,
@@ -22,11 +22,12 @@ import Button from "@/src/components/Button";
 // Remove the onLogin prop since we're using AuthContext
 const LoginScreen: React.FC = () => {
   const router = useRouter();
-  const { login } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const { login, user } = useAuth();
+  const [username, setUsername] = useState("man.system");
+  const [password, setPassword] = useState("science123J@");
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { notification, expoPushToken, error } = useNotification();
 
   const handleLogin = async () => {
     const newErrors: string[] = [];
@@ -62,6 +63,7 @@ const LoginScreen: React.FC = () => {
 
       // Navigate to tabs after successful login
       router.replace("/(tabs)");
+      //registerPushToken();
     } catch (error: any) {
       console.error("Login error:", error);
 
@@ -111,28 +113,14 @@ const LoginScreen: React.FC = () => {
               <View style={styles.formContainer}>
                 <Text style={styles.title}>Sistema de Gerenciamento</Text>
 
-                {/* <TextInput
-                  label="Usuário"
-                  value={username}
-                  onChangeText={setUsername}
-                  placeholder="Usuário"
-                  containerStyle={styles.input}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-
-                <TextInput
-                  label="Senha"
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Senha"
-                  containerStyle={styles.input}
-                  type="password"
-                  secureTextEntry={true}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  showPasswordToggle={true}
-                /> */}
+                <Text style={{ color: "red" }}>Your push token:</Text>
+                <Text>{expoPushToken}</Text>
+                <Text>Latest notification:</Text>
+                <Text>Title: {notification?.request.content.title}</Text>
+                <Text>Body: {notification?.request.content.body}</Text>
+                <Text>
+                  Data: {JSON.stringify(notification?.request.content.data, null, 2)}
+                </Text>
 
                 <TextInput
                   label="Usuário"
@@ -156,18 +144,6 @@ const LoginScreen: React.FC = () => {
                   style={styles.loginButton}
                 />
 
-                {/* <View style={styles.debugContainer}>
-              <Text style={styles.debugText}>Debug Info:</Text>
-              <Text style={styles.debugText}>
-                Loading: {isLoading ? "YES" : "NO"}
-              </Text>
-              <Text style={styles.debugText}>Username: {username}</Text>
-              <Text style={styles.debugText}>
-                API Base: {api.defaults.baseURL}
-              </Text>
-            </View> */}
-
-                {/* Error Messages */}
                 {errors.length > 0 && (
                   <View style={styles.errorContainer}>
                     {errors.map((error, index) => (
