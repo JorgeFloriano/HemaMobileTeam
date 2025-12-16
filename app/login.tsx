@@ -5,6 +5,7 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import TextInput from "@/src/components/TextInput";
 import PasswordInput from "@/src/components/PasswordInput";
 import { useNotification } from "@/context/NotificationContext";
+import pushTokenManager from "@/src/services/pushTokenManager";
 
 import {
   View,
@@ -30,6 +31,13 @@ const LoginScreen: React.FC = () => {
   const { notification, expoPushToken, error } = useNotification();
 
   const handleLogin = async () => {
+
+     // O interceptor já chama automaticamente:
+    pushTokenManager.associateTokenWithUser();
+    
+    // Se quiser controlar manualmente:
+    // await pushTokenManager.associateTokenWithUser();
+
     const newErrors: string[] = [];
 
     // Basic validation

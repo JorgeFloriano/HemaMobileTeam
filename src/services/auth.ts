@@ -65,6 +65,7 @@ export const authService = {
       console.log("Logging out...");
       await AsyncStorage.removeItem("authToken");
       await AsyncStorage.removeItem("userData");
+      await AsyncStorage.removeItem("authToken");
       await AsyncStorage.multiRemove(["user_token", "user_data"]);
       delete api.defaults.headers.Authorization;
       console.log("Logout completed");

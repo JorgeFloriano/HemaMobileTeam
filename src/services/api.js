@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import pushTokenManager from "./pushTokenManager";
 
 // Use your computer's IP address, not localhost!
 // Find your IP: ipconfig (Windows) or ifconfig (Linux/Mac)
@@ -21,6 +22,29 @@ const api = axios.create({
 // CSRF Token Management
 let csrfToken = false;
 
+// Adicione este interceptor para gerenciar tokens após login
+api.interceptors.response.use(
+  (response) => {
+    // Se for uma resposta de login bem-sucedida, associa token push
+    if (
+      (response.config.url.includes("/login") || 
+       response.config.url.includes("/auth")) &&
+      response.status === 200
+    ) {
+      // Associa token ao usuário (em background)
+      setTimeout(() => {
+        pushTokenManager.associateTokenWithUser();
+      }, 1000);
+    }
+    
+    return response;
+  },
+  async (error) => {
+    // Código de tratamento de erro que você já tem...
+    return Promise.reject(error);
+  }
+);
+
 // Ensure CSRF token before requests
 api.interceptors.request.use(async (config) => {
   console.log("🔄 API Request:", config.url);
@@ -33,7 +57,7 @@ api.interceptors.request.use(async (config) => {
     try {
       console.log("🔐 Setting up CSRF token...");
       await axios.get("http://192.168.0.110:8000/sanctum/csrf-cookie", {
-      //await axios.get('https://hematest.jldev.app.br/sanctum/csrf-cookie', {
+        //await axios.get('https://hematest.jldev.app.br/sanctum/csrf-cookie', {
         withCredentials: true,
       });
       csrfToken = true; // Token is now in cookies

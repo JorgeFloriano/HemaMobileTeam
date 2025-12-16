@@ -5,6 +5,8 @@ import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
 import { useEffect } from "react";
 import { NotificationProvider } from "@/context/NotificationContext";
 import * as Notifications from "expo-notifications";
+import { usePushNotifications } from "@/src/hooks/usePushNotifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -12,14 +14,16 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
     shouldShowBanner: true,
     shouldShowList: true,
-    shouldShowAlert: true,
   }),
 });
+
+//console.log("Token salvo:", await AsyncStorage.getItem("@expo_push_token"));
 
 function RootLayoutContent() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  usePushNotifications();
 
   // FIXED: Proper authentication check
   useEffect(() => {
