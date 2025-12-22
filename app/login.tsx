@@ -1,3 +1,4 @@
+// app/login.tsx
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { authService } from "@/src/services/auth";
@@ -32,9 +33,6 @@ const LoginScreen: React.FC = () => {
 
   const handleLogin = async () => {
 
-     // O interceptor já chama automaticamente:
-    pushTokenManager.associateTokenWithUser();
-    
     // Se quiser controlar manualmente:
     // await pushTokenManager.associateTokenWithUser();
 
@@ -65,6 +63,9 @@ const LoginScreen: React.FC = () => {
 
       // Use the context login function to update global state
       await login(response.token, response.user);
+
+      // O interceptor já chama automaticamente:
+      pushTokenManager.associateTokenWithUser();
 
       // ✅ REMOVED: onLogin callback - no longer needed
       // onLogin(username, password);
