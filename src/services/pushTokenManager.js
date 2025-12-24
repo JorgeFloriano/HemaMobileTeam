@@ -107,7 +107,7 @@ class PushTokenManager {
       }
 
       // Usar axios diretamente com headers
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE_URL}/expo-tokens/associate`,
         { expo_push_token: expoToken },
         {

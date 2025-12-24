@@ -5,7 +5,6 @@ import { authService } from "@/src/services/auth";
 import { useAuth } from "@/src/contexts/AuthContext";
 import TextInput from "@/src/components/TextInput";
 import PasswordInput from "@/src/components/PasswordInput";
-import { useNotification } from "@/context/NotificationContext";
 import pushTokenManager from "@/src/services/pushTokenManager";
 
 import {
@@ -29,7 +28,6 @@ const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState("science123J@");
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { notification, expoPushToken, error } = useNotification();
 
   const handleLogin = async () => {
 
@@ -121,15 +119,6 @@ const LoginScreen: React.FC = () => {
               {/* Form Section */}
               <View style={styles.formContainer}>
                 <Text style={styles.title}>Sistema de Gerenciamento</Text>
-
-                <Text style={{ color: "red" }}>Your push token:</Text>
-                <Text>{expoPushToken}</Text>
-                <Text>Latest notification:</Text>
-                <Text>Title: {notification?.request.content.title}</Text>
-                <Text>Body: {notification?.request.content.body}</Text>
-                <Text>
-                  Data: {JSON.stringify(notification?.request.content.data, null, 2)}
-                </Text>
 
                 <TextInput
                   label="Usuário"

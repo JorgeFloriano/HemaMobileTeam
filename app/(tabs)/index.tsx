@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import api from "@/src/services/api";
-import OrderCard from "@/src/components/OrderCard"; // We'll create this component
+import OrderCard from "@/src/components/OrderCard";
 import Button from "@/src/components/Button";
 import { useAuth } from "@/src/contexts/AuthContext";
 
@@ -70,6 +70,7 @@ export interface Order {
 }
 interface OrdersResponse {
   orders: Order[];
+  emergency_order_id?: string | null;
   error?: string;
   success?: boolean;
   message?: string;
@@ -77,6 +78,7 @@ interface OrdersResponse {
 
 const OrdersScreen = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [emergencyOrderId, setEmergencyOrderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +103,8 @@ const OrdersScreen = () => {
       const response = await api.get<OrdersResponse>("/technician/orders/");
 
       setOrders(response.data.orders);
+      setEmergencyOrderId(response.data.emergency_order_id || null);
+      console.log("emergencyOrderId:", emergencyOrderId);
     } catch (err: any) {
       if (err.response?.data?.error) {
         // Check if response has error
@@ -131,7 +135,11 @@ const OrdersScreen = () => {
 
   // Render order item
   const renderOrderItem = ({ item }: { item: Order }) => (
-    <OrderCard order={item} onPress={() => handleOrderPress(item)} />
+    <OrderCard
+      order={item}
+      emergencyOrderId={emergencyOrderId ?? undefined} // Usa o estado da tela
+      onPress={() => handleOrderPress(item)}
+    />
   );
 
   // Handle order press
@@ -188,9 +196,19 @@ const OrdersScreen = () => {
         </Text>
       </View>
 
+      {/* <Text style={{ color: "red" }}>Your push token:</Text>
+      <Text>{expoPushToken}</Text>
+      <Text>Latest notification:</Text>
+      <Text>Title: {notification?.request.content.title}</Text>
+      <Text>Body: {notification?.request.content.body}</Text>
+      <Text>
+        Data: {JSON.stringify(notification?.request.content.data, null, 2)}
+      </Text> */}
+
       <FlatList
         data={orders}
         renderItem={renderOrderItem}
+        extraData={emergencyOrderId}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}

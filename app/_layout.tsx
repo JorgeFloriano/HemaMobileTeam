@@ -6,7 +6,6 @@ import { useEffect } from "react";
 import { NotificationProvider } from "@/context/NotificationContext";
 import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "@/src/hooks/usePushNotifications";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

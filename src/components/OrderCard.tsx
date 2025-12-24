@@ -1,21 +1,38 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Order } from "@/app/(tabs)/order-notes";
+import { useSessionStore } from "@/src/store/useSessionStore"; // Importe sua store
 
 interface OrderCardProps {
   order: Order;
   onPress: () => void;
+  emergencyOrderId?: string; // 1. Adicione a prop opcional que vem do Laravel via tela pai
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ order, onPress }) => {
+const OrderCard: React.FC<OrderCardProps> = ({ order, onPress, emergencyOrderId: dbEmergencyId }) => {
+  // 2. Leia também o ID de emergência que está no Zustand (notificação em tempo real)
+  const sessionEmergencyId = useSessionStore((state) => state.emergencyOrderId);
+
+  // 3. Função para verificar se este card é o de emergência
+  const isEmergency = () => {
+    const idStr = order.id;
+    // É emergência se o ID bater com o que veio do Banco OU com o que veio da Notificação
+    return idStr === dbEmergencyId || idStr === sessionEmergencyId;
+  };
+
   const getStatusColor = (finished: boolean) => {
-    return finished ? "#4CAF50" : "#FF9800";
+    if (finished) return "#4CAF50";
+    if (isEmergency()) return "#ff2c07ff"; // Vermelho
+    return "#FF9800"; // Laranja
   };
 
   const getStatusText = (finished: boolean) => {
-    return finished ? "F" : "P";
+    if (finished) return "F";
+    if (isEmergency()) return "E";
+    return "P";
   };
 
+  // ... restante das suas funções formatDate e formatDateTime
   const formatDate = (date: string) => {
     const [year, month, day] = date.split("-");
     return `${day}/${month}/${year}`;
@@ -59,7 +76,6 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onPress }) => {
       </Text>
 
       <View style={styles.details}>
-
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>Tipo de serviço:</Text>
           <Text style={styles.detailValue}>{order.type.description}</Text>

@@ -13,10 +13,11 @@ export function usePushNotifications() {
       // Configurar canal Android (opcional)
       if (Platform.OS === "android") {
         await Notifications.setNotificationChannelAsync("default", {
-          name: "default",
+          name: "Alert Channel",
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: "#FF231F7C",
+          sound: 'notificationsound.wav',
         });
       }
       
