@@ -1,5 +1,5 @@
 import { useAuth } from "@/src/contexts/AuthContext";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
@@ -259,6 +259,21 @@ const CreateOrderNoteScreen = () => {
     loadNoteCreationData();
   }, [loadNoteCreationData]);
 
+  useEffect(() => {
+    const stopNotifications = async () => {
+      try {
+        // Chamamos a API assim que o técnico "pisa" na tela da ordem
+        await api.post("/technician/clear-emergency", {
+          order_id: id, // o ID da ordem vindo da rota
+        });
+      } catch (e) {
+        console.error("Não foi possível parar os alertas", e);
+      }
+    };
+
+    stopNotifications();
+  }, [id]);
+
   const modEquipRef = useRef<TextInputRef>(null);
   const numEquipRef = useRef<TextInputRef>(null);
   const typeEquipRef = useRef<TextInputRef>(null);
@@ -301,7 +316,6 @@ const CreateOrderNoteScreen = () => {
   };
 
   const handleSubmit = async () => {
-    
     const isModEquipValid = modEquipRef.current?.validate();
     const isNumEquipValid = numEquipRef.current?.validate();
     const isTypeEquipValid = typeEquipRef.current?.validate();
@@ -741,7 +755,10 @@ const CreateOrderNoteScreen = () => {
               formData.finished === "0" && styles.radioSelected,
             ]}
           />
-          <Text style={styles.radioLabel}><FontAwesome name="save" size={24} color="black" /> - Salvar (atendimento pendente)</Text>
+          <Text style={styles.radioLabel}>
+            <FontAwesome name="save" size={24} color="black" /> - Salvar
+            (atendimento pendente)
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -758,12 +775,13 @@ const CreateOrderNoteScreen = () => {
             ]}
           />
           <Text style={styles.radioLabel}>
-            <FontAwesome name="check-square-o" size={24} color="black" /> - Concluir (atendimento finalizado)
+            <FontAwesome name="check-square-o" size={24} color="black" /> -
+            Concluir (atendimento finalizado)
           </Text>
         </TouchableOpacity>
         <Button
           title={loading ? "Processando..." : "Confirmar"}
-          icon={<FontAwesome name="check" size={24} color="white"/>}
+          icon={<FontAwesome name="check" size={24} color="white" />}
           onPress={handleSubmit}
           variant="primary"
           disabled={loading}

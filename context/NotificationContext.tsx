@@ -1,3 +1,4 @@
+// context/NotificationContext.tsx
 import React, {
   createContext,
   useContext,
@@ -10,6 +11,7 @@ import * as Notifications from "expo-notifications";
 import { registerForPushNotificationsAsync } from "@/utils/registerForPushNotificationsAsync";
 import { router } from "expo-router";
 import { useSessionStore } from "@/src/store/useSessionStore";
+import { EventSubscription } from "expo-modules-core";
 
 interface NotificationContextType {
   expoPushToken: string | null;
@@ -48,8 +50,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     useState<Notifications.Notification | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const notificationListener = useRef<Notifications.Subscription | null>(null);
-  const responseListener = useRef<Notifications.Subscription | null>(null);
+  const notificationListener = useRef<EventSubscription | null>(null);
+  const responseListener = useRef<EventSubscription | null>(null);
 
   useEffect(() => {
     registerForPushNotificationsAsync()
@@ -64,11 +66,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
-        console.log("🔔 Notification Received: ", notification);
+        console.log(
+          "🔔 Notification Received: ",
+          notification.request.content.data
+        );
         setNotification(notification);
 
         // EXTRAÇÃO DO ID: Quando a notificação chegar com o app aberto
-        const orderId = notification.request.content.data.SAT;
+        const orderId = notification.request.content.data?.SAT;
         const emergency = notification.request.content.data.emergency;
         if (orderId && emergency) {
           setEmergencyOrderId(String(orderId));
@@ -79,8 +84,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       Notifications.addNotificationResponseReceivedListener((response) => {
         console.log(
           "🔔 Notification Response: ",
-          JSON.stringify(response, null, 2),
-          JSON.stringify(response.notification.request.content.data, null, 2)
+          JSON.stringify(response.notification.request, null, 2)
         );
         const order_id = response.notification.request.content.data.SAT;
         router.push(`/order-notes/${order_id}/order-notes-create`);
