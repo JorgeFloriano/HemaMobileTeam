@@ -52,11 +52,9 @@ function RootLayoutContent() {
         backgroundColor="transparent"
       />
       <Stack screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <Stack.Screen name="(tabs)" />
-        ) : (
-          <Stack.Screen name="login" />
-        )}
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="(tabs)" />
       </Stack>
     </>
   );

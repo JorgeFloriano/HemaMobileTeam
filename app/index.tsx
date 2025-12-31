@@ -1,26 +1,70 @@
 // app/index.tsx
-import { useEffect } from "react";
-import { useRouter } from "expo-router"; // Removed unused Redirect import
+import { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { ActivityIndicator, View } from "react-native";
+import { useSessionStore } from "@/src/store/useSessionStore";
+import api from "@/src/services/api"; // seu serviço axios
 
 export default function Index() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const [isCheckingEmergency, setIsCheckingEmergency] = useState(true);
+  const setEmergencyOrderId = useSessionStore(
+    (state) => state.setEmergencyOrderId
+  );
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (user && user.id) {
-        router.replace("/(tabs)");
-      } else {
-        router.replace("/login");
-      }
-    }
-  }, [user, isLoading, router]); // ✅ Added router to dependencies
+    const checkNavigation = async () => {
+      // Se ainda está carregando o auth, não faz nada
+      if (authLoading) return;
 
-  if (isLoading) {
+      // Se não tem usuário, manda para o login
+      if (!user || !user.id) {
+        router.replace("/login");
+        return;
+      }
+
+      try {
+        // SOLICITAÇÃO DINÂMICA: Verifica o banco no momento exato
+        const response = await api.get("/technician/check-emergency");
+        const { emergency_order_id, emergency_notification_pending } =
+          response.data;
+
+        if (emergency_order_id && emergency_notification_pending) {
+          // Atualiza o estado global para o ícone ficar vermelho
+          setEmergencyOrderId(String(emergency_order_id));
+
+          // Vai direto para a ordem crítica
+          router.replace(
+            `/order-notes/${emergency_order_id}/order-notes-create`
+          );
+        } else {
+          // Sem emergência ativa, vai para a home
+          router.replace("/(tabs)");
+        }
+      } catch (error) {
+        console.error("Erro ao verificar emergência:", error);
+        router.replace("/(tabs)"); // Em caso de erro, segue fluxo normal
+      } finally {
+        setIsCheckingEmergency(false);
+      }
+    };
+
+    checkNavigation();
+  }, [user, authLoading]);
+
+  // Exibe o carregamento enquanto checa a autenticação OU a emergência no banco
+  if (authLoading || isCheckingEmergency) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#fff",
+        }}
+      >
         <ActivityIndicator size="large" color="#1b0363ff" />
       </View>
     );

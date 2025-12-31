@@ -8,6 +8,7 @@ import {
   Text,
   Keyboard,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import api from "@/src/services/api";
@@ -146,7 +147,7 @@ const CreateOrderNoteScreen = () => {
   const [formLoading, setFormLoading] = useState(true);
   const materialSelectorRef = useRef<MaterialSelectorRef>(null);
   const [showClientFields, setShowClientFields] = useState(false);
-
+  const [isVerifying, setIsVerifying] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     order_id: Array.isArray(id) ? id[0] : id || "",
     equip_mod: "",
@@ -262,12 +263,32 @@ const CreateOrderNoteScreen = () => {
   useEffect(() => {
     const stopNotifications = async () => {
       try {
+        setIsVerifying(true);
         // Chamamos a API assim que o técnico "pisa" na tela da ordem
+        // Para todos os fluxos de notificações de emergência da ordem
+        // Atribui a ordem para o técnico logado
         await api.post("/technician/clear-emergency", {
           order_id: id, // o ID da ordem vindo da rota
         });
-      } catch (e) {
-        console.error("Não foi possível parar os alertas", e);
+
+        setIsVerifying(false);
+      } catch (error: any) {
+        if (error.response?.status === 403) {
+          Alert.alert(
+            "SAT atribuída à outro técnico",
+            "Outro técnico ou já iniciou o atendimento desta emergência ou SAT foi atribuída a ele por um supervisor.",
+            [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+          );
+        } else {
+          console.error("Erro na verificação:", error);
+          // Se for outro erro (ex: 500), você decide se deixa ele continuar ou volta
+          setIsVerifying(false);
+        }
+
+        console.error(
+          "Não foi possível parar os alertas e atribuir a ordem para o técnico logado",
+          error
+        );
       }
     };
 
@@ -420,6 +441,15 @@ const CreateOrderNoteScreen = () => {
     if (!timeString) return "";
     return timeString.substring(0, 5);
   };
+
+  // Se estiver verificando, mostra o loading e não renderiza o formulário
+  if (isVerifying) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#1b0363ff" />
+      </View>
+    );
+  }
 
   if (formLoading) {
     return (
