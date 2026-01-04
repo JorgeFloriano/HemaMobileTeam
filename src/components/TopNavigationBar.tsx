@@ -61,15 +61,20 @@ const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
     setShowLogoutModal(true);
   };
 
+  const isHomeScreen = () => {
+    const homeRoutes = ["/", "/(tabs)", "/order-notes", "/order-sat"];
+    return homeRoutes.includes(pathname);
+  };
+
   const icon = () => {
-    if (pathname === "/") {
-      return 'log-out-outline';
+    if (isHomeScreen()) {
+      return "log-out-outline";
     }
-    return 'arrow-back-outline';
-  }
+    return "arrow-back-outline";
+  };
 
   const handleButtonPress = () => {
-    if (pathname === "/") {
+    if (isHomeScreen()) {
       // Show logout confirmation on home screen
       showLogoutConfirmation();
     } else {
@@ -117,12 +122,15 @@ const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
         </View>
         {/* Back button on the left */}
         {showBack && (
-          <TouchableOpacity style={styles.backButton} onPress={handleButtonPress}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={handleButtonPress}
+          >
             <Ionicons name={icon()} size={24} color="white" />
           </TouchableOpacity>
         )}
       </View>
-    {/* Logout Confirmation Modal */}
+      {/* Logout Confirmation Modal */}
       <Modal
         visible={showLogoutModal}
         transparent={true}
@@ -135,16 +143,16 @@ const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             <Text style={styles.modalMessage}>
               Tem certeza que deseja sair do aplicativo?
             </Text>
-            
+
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setShowLogoutModal(false)}
               >
                 <Text style={styles.cancelButtonText}>Cancelar</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={handleLogout}
               >
@@ -157,7 +165,6 @@ const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -206,7 +213,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 2,
   },
- // Modal Styles
+  // Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",

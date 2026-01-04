@@ -25,29 +25,34 @@ export default function Index() {
         return;
       }
 
-      try {
-        // SOLICITAÇÃO DINÂMICA: Verifica o banco no momento exato
-        const response = await api.get("/technician/check-emergency");
-        const { emergency_order_id, emergency_notification_pending } =
-          response.data;
+      if (user.tecId !== null) {
+        try {
+          // SOLICITAÇÃO DINÂMICA: Verifica o banco no momento exato
+          const response = await api.get("/technician/check-emergency");
+          const { emergency_order_id, emergency_notification_pending } =
+            response.data;
 
-        if (emergency_order_id && emergency_notification_pending) {
-          // Atualiza o estado global para o ícone ficar vermelho
-          setEmergencyOrderId(String(emergency_order_id));
+          if (emergency_order_id && emergency_notification_pending) {
+            // Atualiza o estado global para o ícone ficar vermelho
+            setEmergencyOrderId(String(emergency_order_id));
 
-          // Vai direto para a ordem crítica
-          router.replace(
-            `/order-notes/${emergency_order_id}/order-notes-create`
-          );
-        } else {
-          // Sem emergência ativa, vai para a home
-          router.replace("/(tabs)");
+            // Vai direto para a ordem crítica
+            router.replace(
+              `/order-notes/${emergency_order_id}/order-notes-create`
+            );
+          } else {
+            // Sem emergência ativa, vai para a home
+            router.replace("/order-notes");
+          }
+        } catch (error) {
+          console.error("Erro ao verificar emergência:", error);
+          router.replace("/order-notes"); // Em caso de erro, segue fluxo normal
+        } finally {
+          setIsCheckingEmergency(false);
         }
-      } catch (error) {
-        console.error("Erro ao verificar emergência:", error);
-        router.replace("/(tabs)"); // Em caso de erro, segue fluxo normal
-      } finally {
-        setIsCheckingEmergency(false);
+      }
+      if (user.supId !== null) {
+        router.replace("/order-sat");
       }
     };
 

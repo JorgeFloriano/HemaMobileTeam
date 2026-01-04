@@ -20,7 +20,8 @@ interface Tab {
   href: string;
   icon: string;
   label: string;
-  showForAdmin?: boolean; // Property to control visibility
+  showForTec?: boolean; // Property to control visibility
+  showForSup?: boolean;
 }
 
 const BottomTabBar: React.FC = () => {
@@ -30,41 +31,40 @@ const BottomTabBar: React.FC = () => {
   const { user } = useAuth();
 
   const baseTabs: Tab[] = [
-  {
-    name: "index",
-    href: "/",
-    icon: "home",
-    label: "Home",
-  },
-  {
-    name: "order-notes",
-    href: "/order-notes",
-    icon: "list",
-    label: "Programação",
-  },
-  {
-    name: "user-edit",
-    href: "/profile",
-    icon: "person",
-    label: "Perfil",
-  },
-  {
-    name: "users",
-    href: "/users",
-    icon: "person-outline",
-    label: "Usuários",
-    showForAdmin: true, // Only show for admin users
-  },
-];
+    {
+      name: "order-notes",
+      href: "/order-notes",
+      icon: "list-outline",
+      label: "Programação",
+      showForTec: true, // Only show for tecnician users
+    },
+    {
+      name: "order-sat",
+      href: "/order-sat",
+      icon: "list",
+      label: "SATs",
+      showForSup: true, // Only show for supervisor users
+    },
+  ];
 
   // Filter tabs based on user role
-  const tabs = baseTabs.filter(tab => {
-    if (tab.showForAdmin) {
-      // Only show this tab if user is admin
-      // Adjust this condition based on your actual user role property
-      return user?.isAdmin;
+  const tabs = baseTabs.filter((tab) => {
+    let shouldShow = false;
+
+    if (tab.showForTec && user?.tecId) {
+      shouldShow = true;
     }
-    return true; // Show all other tabs
+
+    if (tab.showForSup && user?.supId) {
+      shouldShow = true;
+    }
+
+    // Se a aba não tiver restrição de papel, mostramos sempre
+    if (!tab.showForTec && !tab.showForSup) {
+      shouldShow = true;
+    }
+
+    return shouldShow;
   });
 
   // Find active tab index
@@ -117,6 +117,10 @@ const BottomTabBar: React.FC = () => {
       };
     });
 
+    if (tabs.length < 2) {
+      return null;
+    }
+
     return (
       <TouchableOpacity
         style={styles.tabButton}
@@ -136,6 +140,10 @@ const BottomTabBar: React.FC = () => {
     );
   };
 
+  if (tabs.length < 2) {
+    return null;
+  }
+
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <View style={styles.tabBar}>
@@ -152,9 +160,7 @@ const BottomTabBar: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    
-  },
+  container: {},
   tabBar: {
     flexDirection: "row",
     height: 70, // Increased height for better touch area

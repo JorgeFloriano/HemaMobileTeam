@@ -9,8 +9,8 @@ interface User {
   surname?: string;
   email?: string;
   function?: string;
-  isAdmin?: boolean;
-  tecId?: string;
+  supId?: string | null;
+  tecId?: string | null;
 }
 
 interface AuthContextType {

@@ -23,19 +23,17 @@ import Button from "@/src/components/Button";
 // Remove the onLogin prop since we're using AuthContext
 const LoginScreen: React.FC = () => {
   const router = useRouter();
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const [username, setUsername] = useState("man.system");
   const [password, setPassword] = useState("science123J@");
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
-
     // Se quiser controlar manualmente:
     // await pushTokenManager.associateTokenWithUser();
 
     const newErrors: string[] = [];
-
     // Basic validation
     if (!username.trim()) {
       newErrors.push("O campo usuário é obrigatório");
@@ -53,24 +51,37 @@ const LoginScreen: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Call your Laravel API
       const response = await authService.login({
         username: username.trim(),
         password: password.trim(),
       });
 
-      // Use the context login function to update global state
+      // 1. Atualiza o contexto global
       await login(response.token, response.user);
 
-      // O interceptor já chama automaticamente:
+      // 2. Associa o token de push
       pushTokenManager.associateTokenWithUser();
 
-      // ✅ REMOVED: onLogin callback - no longer needed
-      // onLogin(username, password);
+      // 3. Lógica de Redirecionamento usando a 'response.user' diretamente
+      const userData: {
+        id: string;
+        username: string;
+        name: string;
+        email?: string | undefined;
+        tecId?: string | undefined;
+        supId?: string | undefined;
+      } = response.user;
 
-      // Navigate to tabs after successful login
-      router.replace("/(tabs)");
-      //registerPushToken();
+      if (userData.tecId) {
+        // Se for técnico (independente de ser supervisor também)
+        router.replace("/(tabs)/order-notes");
+      } else if (userData.supId) {
+        // Se não for técnico, mas for supervisor
+        router.replace("/(tabs)/order-sat");
+      } else {
+        // Caso não tenha nenhum dos dois (opcional)
+        router.replace("/(tabs)");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
 
