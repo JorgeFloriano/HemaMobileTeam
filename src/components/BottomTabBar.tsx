@@ -117,10 +117,6 @@ const BottomTabBar: React.FC = () => {
       };
     });
 
-    if (tabs.length < 2) {
-      return null;
-    }
-
     return (
       <TouchableOpacity
         style={styles.tabButton}
@@ -139,10 +135,6 @@ const BottomTabBar: React.FC = () => {
       </TouchableOpacity>
     );
   };
-
-  if (tabs.length < 2) {
-    return null;
-  }
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>

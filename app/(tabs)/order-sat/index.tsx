@@ -140,7 +140,7 @@ const OrdersScreen = () => {
   // Handle order press
   const handleOrderPress = (order: Order) => {
     // If order is finished, navigate to order details, otherwise navigate to fill form
-    router.push(`/order-notes/${order.id}/order-notes-show`);
+    router.push(`/order-sat/${order.id}/order-sat-show`);
   };
 
   // Render empty state

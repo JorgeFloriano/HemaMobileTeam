@@ -74,8 +74,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
         // EXTRAÇÃO DO ID: Quando a notificação chegar com o app aberto
         const orderId = notification.request.content.data?.SAT;
-        const emergency = notification.request.content.data.emergency;
-        if (orderId && emergency) {
+        const type = notification.request.content.data.type;
+        if (orderId && type === "emergency") {
           setEmergencyOrderId(String(orderId));
         }
       });
@@ -86,14 +86,18 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           "🔔 Notification Response: ",
           JSON.stringify(response.notification.request, null, 2)
         );
+        const type = response.notification.request.content.data.type;
         const order_id = response.notification.request.content.data.SAT;
-        router.push(`/order-notes/${order_id}/order-notes-create`);
+        if (type === "emergency") {
+          router.push(`/order-notes/${order_id}/order-notes-create`);
+        }
+        
         // Handle the notification response here
         // ...
         // EXTRAÇÃO DO ID: Quando a notificação chegar com o app em segundo plano
         const orderId = response.notification.request.content.data.SAT;
-        const emergency = response.notification.request.content.data.emergency;
-        if (orderId && emergency) {
+        
+        if (orderId && type === "emergency") {
           setEmergencyOrderId(String(orderId));
         }
       });
