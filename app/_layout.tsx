@@ -4,17 +4,8 @@ import { ActivityIndicator, View, StatusBar } from "react-native";
 import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
 import { useEffect } from "react";
 import { NotificationProvider } from "@/context/NotificationContext";
-import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "@/src/hooks/usePushNotifications";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
 
 //console.log("Token salvo:", await AsyncStorage.getItem("@expo_push_token"));
 
