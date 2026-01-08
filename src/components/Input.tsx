@@ -40,7 +40,7 @@ interface InputProps {
   onSubmitEditing?: () => void;
 }
 
-const Input: React.FC<TextInputProps> = ({
+const Input: React.FC<InputProps> = ({
   label,
   value,
   onChangeText,

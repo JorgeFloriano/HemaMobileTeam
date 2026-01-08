@@ -1,3 +1,4 @@
+// src/components/OrderCard.tsx
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Order } from "@/app/(tabs)/order-notes";
@@ -9,7 +10,11 @@ interface OrderCardProps {
   emergencyOrderId?: string; // 1. Adicione a prop opcional que vem do Laravel via tela pai
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ order, onPress, emergencyOrderId: dbEmergencyId }) => {
+const OrderCard: React.FC<OrderCardProps> = ({
+  order,
+  onPress,
+  emergencyOrderId: dbEmergencyId,
+}) => {
   // 2. Leia também o ID de emergência que está no Zustand (notificação em tempo real)
   const sessionEmergencyId = useSessionStore((state) => state.emergencyOrderId);
 
@@ -93,12 +98,10 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onPress, emergencyOrderId:
           </Text>
         </View>
 
-        {order.tec && (
+        {order.equipment && (
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Técnico:</Text>
-            <Text style={styles.detailValue}>
-              {order.tec.user.name} {order.tec.user.surname}
-            </Text>
+            <Text style={styles.detailLabel}>Equipamento:</Text>
+            <Text style={styles.detailValue}>{order.equipment}</Text>
           </View>
         )}
       </View>

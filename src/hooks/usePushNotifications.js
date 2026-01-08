@@ -12,7 +12,7 @@ export function usePushNotifications() {
         await Notifications.setNotificationChannelAsync("default", {
           name: "Notificações Padrão",
           importance: Notifications.AndroidImportance.DEFAULT,
-          sound: 'default', // Som padrão do sistema
+          sound: "default", // Som padrão do sistema
         });
 
         // 2. Canal de Emergência (Som customizado)
@@ -21,7 +21,7 @@ export function usePushNotifications() {
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 500, 200, 500],
           lightColor: "#FF0000",
-          sound: 'notificationsound.wav', // Seu arquivo na pasta assets
+          sound: "notificationsound.wav", // Seu arquivo na pasta assets
         });
       }
 
@@ -37,14 +37,18 @@ export function usePushNotifications() {
   // 3. Configurar como o App deve se comportar com a notificação recebida (Foreground)
   Notifications.setNotificationHandler({
     handleNotification: async (notification) => {
-      const isEmergency = notification.request.content.data.type === "emergency";
-      
+      const isEmergency =
+        notification.request.content.data.type === "emergency";
+
       return {
-        shouldShowAlert: true,
-        shouldPlaySound: true,
+        shouldShowBanner: true, // Substitui o Alert para mostrar o pop-up
+        shouldShowList: true, // Garante que apareça na central de notificações
+        shouldPlaySound: true, 
         shouldSetBadge: false,
         // No Android, isso dirá ao sistema qual canal usar se o app estiver aberto
-        priority: isEmergency ? Notifications.AndroidNotificationPriority.MAX : Notifications.AndroidNotificationPriority.DEFAULT,
+        priority: isEmergency
+          ? Notifications.AndroidNotificationPriority.MAX
+          : Notifications.AndroidNotificationPriority.DEFAULT,
       };
     },
   });

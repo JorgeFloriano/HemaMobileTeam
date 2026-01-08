@@ -45,6 +45,13 @@ const BottomTabBar: React.FC = () => {
       label: "SATs",
       showForSup: true, // Only show for supervisor users
     },
+    {
+      name: "on-call",
+      href: "/on-call",
+      icon: "notifications-outline",
+      label: "Sobreaviso",
+      showForSup: true, // Only show for supervisor users
+    },
   ];
 
   // Filter tabs based on user role

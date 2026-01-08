@@ -62,7 +62,7 @@ const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   };
 
   const isHomeScreen = () => {
-    const homeRoutes = ["/", "/(tabs)", "/order-notes", "/order-sat"];
+    const homeRoutes = ["/", "/(tabs)", "/order-notes", "/order-sat", "on-call"];
     return homeRoutes.includes(pathname);
   };
 

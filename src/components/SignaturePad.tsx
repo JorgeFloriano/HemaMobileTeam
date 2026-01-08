@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   closeButtonText: {
-    fontSize: 24,
+    fontSize: 29,
     color: "#6b7280",
   },
 

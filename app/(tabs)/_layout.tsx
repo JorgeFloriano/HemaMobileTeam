@@ -40,6 +40,7 @@ export default function TabLayout() {
             <Stack.Screen name="order-sat/index" />
             <Stack.Screen name="profile/index" />
             <Stack.Screen name="users/index" />
+            <Stack.Screen name="on-call/index" />
           </Stack>
         </View>
 

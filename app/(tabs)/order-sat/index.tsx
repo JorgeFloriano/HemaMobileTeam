@@ -1,3 +1,4 @@
+// app/(tabs)/order-sat/index.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -10,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import api from "@/src/services/api";
-import OrderCard from "@/src/components/OrderCard";
+import SupervisorOrderCard from "@/src/components/SupervisorOrderCard";
 import Button from "@/src/components/Button";
 import { useAuth } from "@/src/contexts/AuthContext";
 
@@ -78,15 +79,68 @@ interface OrdersResponse {
 
 const OrdersScreen = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [tecs, setTecs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { logout } = useAuth();
 
+  // Função para fazer logout
   const performLogout = async () => {
     await logout();
     router.replace("/login");
+  };
+
+  // Função para carregar técnicos (allTecs)
+  const loadTecs = async () => {
+    try {
+      const response = await api.get("/tecs/list"); // Ajuste o endpoint conforme seu Laravel
+      setTecs(response.data);
+    } catch (err) {
+      console.error("Erro ao carregar técnicos:", err);
+    }
+  };
+
+  // Função para atualizar o técnico da ordem (API Call)
+  const handleUpdateOrderTec = async (
+    orderId: number | string,
+    tecId: number | string
+  ) => {
+    try {
+      const response = await api.post(`/sat/orders/${orderId}/update-tec`, {
+        tec_id: tecId,
+      });
+
+      // Se a API retornou success: true (mesmo que a notificação tenha falhado)
+      if (response.data.success) {
+        Alert.alert("Atualização", response.data.message);
+        loadOrders(true); // Recarrega a lista para mostrar o novo técnico no card
+      } else {
+        // Caso o backend envie success: false por algum motivo de regra de negócio
+        Alert.alert(
+          "Aviso",
+          response.data.message || "Não foi possível completar a ação."
+        );
+      }
+    } catch (err: any) {
+      // Aqui pegamos erros de servidor (404, 403, 500)
+      const errorMessage =
+        err.response?.data?.message || "Erro de conexão com o servidor.";
+
+      Alert.alert("Erro", errorMessage);
+
+      // Importante: lançar o erro novamente para o SupervisorOrderCard
+      // saber que deve parar o estado de "loading" do botão
+      throw err;
+    }
+  };
+
+  // Ajuste no loadOrders para carregar técnicos também
+  const loadInitialData = async () => {
+    setLoading(true);
+    await Promise.all([loadOrders(), loadTecs()]);
+    setLoading(false);
   };
 
   // Load orders
@@ -121,7 +175,7 @@ const OrdersScreen = () => {
 
   // Initial load
   useEffect(() => {
-    loadOrders();
+    loadInitialData();
   }, []);
 
   // Pull to refresh
@@ -129,11 +183,13 @@ const OrdersScreen = () => {
     loadOrders(true);
   };
 
-  // Render order item
+  // Renderização do Item atualizada
   const renderOrderItem = ({ item }: { item: Order }) => (
-    <OrderCard
+    <SupervisorOrderCard
       order={item}
       onPress={() => handleOrderPress(item)}
+      onUpdateTec={handleUpdateOrderTec} // Passa a função de API
+      allTecs={tecs} // Passa a lista de técnicos carregada
     />
   );
 
