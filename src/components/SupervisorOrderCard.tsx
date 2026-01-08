@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { Order } from "@/app/(tabs)/order-notes";
 import { FontAwesome } from "@expo/vector-icons";
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import Button from "@/src/components/Button";
 
 interface SupervisorOrderCardProps {
   order: Order;
@@ -137,18 +139,24 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
             </Text>
           </View>
 
-          {!order.finished && (
-            <TouchableOpacity
-              style={styles.changeBtn}
-              onPress={() => setModalVisible(true)}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#1b0363ff" />
-              ) : (
-                <Text style={styles.changeBtnText}>ALTERAR</Text>
-              )}
-            </TouchableOpacity>
+          {!order.finished ? (
+            <>
+              <Button
+                title={
+                  <>
+                    <FontAwesome6 name="arrows-rotate" size={14} color="#1b0363ff" />
+                    
+                    <Text style={styles.changeBtnText}>
+                      {'  Alterar'}
+                    </Text>
+                  </>
+                }
+                onPress={() => setModalVisible(true)}
+                variant="icon"
+              />
+            </>
+          ) : (
+            <Text style={styles.detailValue}>FINALIZADA</Text>
           )}
         </View>
       </View>
@@ -242,11 +250,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: "#1b0363ff",
-    borderRadius: 6,
+    borderRadius: 10,
   },
   changeBtnText: {
     color: "#1b0363ff",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "700",
   },
   tecItem: {
@@ -257,7 +265,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   tecItemName: { fontSize: 16, color: "#333" },
-  tecItemId: { fontSize: 12, color: "#999" },
+  tecItemId: { fontSize: 14, color: "#999" },
   closeBtn: {
     marginTop: 15,
     padding: 15,
@@ -278,9 +286,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
   },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
   clientName: { fontSize: 16, fontWeight: "bold", color: "#333", flex: 1 },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
-  statusText: { fontSize: 12, fontWeight: "600", color: "white" },
+  statusText: { fontSize: 14, fontWeight: "600", color: "white" },
   description: { fontSize: 14, color: "#666", marginBottom: 12 },
   details: { borderTopWidth: 1, borderTopColor: "#f0f0f0", paddingTop: 12 },
 
@@ -306,29 +319,30 @@ const styles = StyleSheet.create({
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     backgroundColor: "white",
     borderRadius: 12,
     width: "90%",
-    maxHeight: "70%",
+    maxHeight: "100%",
     overflow: "hidden",
   },
   modalHeader: {
+    padding: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: "#eee",
+    alignItems: "center",
   },
-  modalTitle: { fontSize: 18, fontWeight: "bold", color: "#333" },
+  modalTitleText: { fontSize: 18, fontWeight: "bold", color: "#333" },
+  modalSub: { fontSize: 14, color: "#666" },
   closeButton: { padding: 4 },
   closeButtonText: { fontSize: 28, color: "#6b7280", lineHeight: 28 },
-  modalList: { maxHeight: 400 },
+  modalList: { maxHeight: 700 },
   modalItem: {
     padding: 16,
     borderBottomWidth: 1,

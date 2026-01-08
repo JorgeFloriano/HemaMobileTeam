@@ -34,8 +34,8 @@ const Button: React.FC<ButtonProps> = ({
       borderColor: "#1b0363ff",
     }),
     ...(variant === "icon" && {
-      paddingVertical: 6,
-      paddingHorizontal: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 10,
       borderWidth: 1,
       borderColor: "#1b0363ff",
       hoverBackgroundColor: "#cdc6e2ff",

@@ -957,7 +957,7 @@ const styles = StyleSheet.create({
     borderColor: "#dee2e6",
   },
   previewTitle: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "bold",
     marginBottom: 4,
   },

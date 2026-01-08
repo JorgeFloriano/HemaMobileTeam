@@ -161,7 +161,7 @@ const UsersScreen = () => {
   if (loading && !refreshing) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#1b0363ff" />
         <Text style={styles.loadingText}>Carregando usuários...</Text>
       </View>
     );
@@ -191,8 +191,8 @@ const UsersScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={["#007AFF"]}
-            tintColor="#007AFF"
+            colors={["#1b0363ff"]}
+            tintColor="#1b0363ff"
           />
         }
         ListEmptyComponent={renderEmptyState}

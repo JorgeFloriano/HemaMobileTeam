@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+// src/components/CheckboxInput.tsx
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome";
 
@@ -13,27 +13,20 @@ const CheckboxInput: React.FC<CheckboxInputProps> = ({
   value,
   onChange,
 }) => {
-  const [isChecked, setIsChecked] = useState(value);
-
-  const handleCheckboxChange = () => {
-    setIsChecked(!isChecked);
-    onChange(!isChecked);
-  };
-
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={handleCheckboxChange}
+        onPress={() => onChange(!value)} // Chama a função do pai diretamente
         style={styles.TouchableOpacity}
       >
-        <View style={styles.checkboxContainer}>
-          {isChecked ? (
-            <Text style={styles.checkedText}>
-              <FontAwesome6 name="check" size={15} color="black" />
-            </Text>
-          ) : null}
+        <View
+          style={
+            value ? styles.selectedCheckboxContainer : styles.checkboxContainer
+          }
+        >
+          {value && <FontAwesome6 name="check" size={15} color="#1b0363ff" />}
         </View>
-        <Text style={styles.label}> {label}</Text>
+        <Text style={styles.label}>{label}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -55,6 +48,18 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderColor: "#ced4da",
+    borderWidth: 1,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  selectedCheckboxContainer: {
+    width: 24,
+    height: 24,
+    borderColor: "#1b0363ff",
+    outlineColor: "#2809843e",
+    outlineWidth: 3,
+    outlineStyle: "solid",
     borderWidth: 1,
     borderRadius: 4,
     alignItems: "center",

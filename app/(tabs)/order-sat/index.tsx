@@ -195,7 +195,7 @@ const OrdersScreen = () => {
 
   // Handle order press
   const handleOrderPress = (order: Order) => {
-    // If order is finished, navigate to order details, otherwise navigate to fill form
+    // Navigate to order details
     router.push(`/order-sat/${order.id}/order-sat-show`);
   };
 
@@ -224,7 +224,7 @@ const OrdersScreen = () => {
   if (loading && !refreshing) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#1b0363ff" />
         <Text style={styles.loadingText}>Carregando solicitações...</Text>
       </View>
     );
@@ -250,8 +250,8 @@ const OrdersScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={["#007AFF"]}
-            tintColor="#007AFF"
+            colors={["#1b0363ff"]}
+            tintColor="#1b0363ff"
           />
         }
         ListEmptyComponent={renderEmptyState}

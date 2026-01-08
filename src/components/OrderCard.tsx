@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
     color: "white",
   },

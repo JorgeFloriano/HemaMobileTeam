@@ -2,6 +2,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Switch, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import Button from "@/src/components/Button";
 
 interface OnCallTecCardProps {
   tec: any;
@@ -27,14 +28,19 @@ const OnCallTecCard: React.FC<OnCallTecCardProps> = ({
         </View>
         <View style={styles.activeSection}>
           {/* Aqui acontece a mágica: se for verdadeiro exibe 'ATIVO', se não 'DESATIVADO' */}
-          <Text style={[styles.label]}>
-            {tec.on_call ? "DESATIVAR" : "ATIVAR"}
+          <Text
+            style={[
+              styles.label,
+              { color: tec.on_call ? "#4CAF50" : "#ef6c00" }, // Opcional: muda a cor do texto também
+            ]}
+          >
+            {tec.on_call ? "ATIVO" : "INATIVO"}
           </Text>
 
           <Switch
             value={!!tec.on_call}
             onValueChange={onToggleActive}
-            trackColor={{ false: "#ef6c00", true: "#4CAF50" }}
+            trackColor={{ false: "#c9c5cdff", true: "#1b0363ff" }}
             thumbColor={"#1b0363ff"}
             ios_backgroundColor="#3e3e3e"
           />
@@ -42,24 +48,30 @@ const OnCallTecCard: React.FC<OnCallTecCardProps> = ({
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.clientBtn} onPress={onManageClients}>
-          <FontAwesome name="users" size={14} color="#1b0363ff" />
-          <Text style={styles.clientBtnText}>
-            Clientes (
-            {tec.emergency_clients_count ?? tec.emergency_clients?.length ?? 0})
-          </Text>
-        </TouchableOpacity>
-
+        <Button
+          title={
+            <>
+              <FontAwesome name="users" size={14} color="#1b0363ff" />
+              <Text style={styles.clientBtnText}>
+                {"  Clientes"} (
+                {tec.emergency_clients_count ??
+                  tec.emergency_clients?.length ??
+                  0}
+                )
+              </Text>
+            </>
+          }
+          onPress={() => onManageClients()}
+          variant="icon"
+        />
         <View style={styles.statusBadge}>
           {isBusy ? (
-            <TouchableOpacity
-              style={styles.busyBtn}
+            <Button
+              title={"SAT " + tec.emergency_order_id}
               onPress={() => onViewOrder(tec.emergency_order_id)}
-            >
-              <Text style={styles.busyText}>
-                ● Ocupado - SAT {tec.emergency_order_id}
-              </Text>
-            </TouchableOpacity>
+              variant="icon" // Use seu estilo de ícone/link
+              textStyle={{ color: "#ef6c00", fontWeight: "500" }}
+            />
           ) : (
             <Text style={styles.availableText}>● Disponível</Text>
           )}
@@ -85,10 +97,10 @@ const styles = StyleSheet.create({
   },
   info: { flex: 1 },
   name: { fontSize: 16, fontWeight: "bold", color: "#333" },
-  function: { fontSize: 13, color: "#666", marginTop: 2 },
+  function: { fontSize: 14, color: "#666", marginTop: 2 },
   activeSection: { alignItems: "center" },
   label: {
-    fontSize: 10,
+    fontSize: 14,
     color: "#999",
     marginBottom: 2,
     textTransform: "uppercase",
@@ -107,18 +119,17 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     color: "#1b0363ff",
     fontWeight: "600",
-    fontSize: 13,
+    fontSize: 14,
   },
-  availableText: { color: "#4CAF50", fontWeight: "600", fontSize: 13 },
+  availableText: { color: "#4CAF50", fontWeight: "600", fontSize: 14 },
   busyBtn: {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
   },
-  busyText: { color: "#ef6c00", fontWeight: "600", fontSize: 12 },
+  busyText: { color: "#ef6c00", fontWeight: "600", fontSize: 14 },
   statusBadge: {
     paddingHorizontal: 8,
-    paddingVertical: 4,
     borderRadius: 12,
   },
 });

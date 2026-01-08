@@ -96,7 +96,7 @@ const OrderDetailScreen = () => {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#1b0363ff" />
         <Text style={styles.loadingText}>Carregando detalhes...</Text>
       </View>
     );
@@ -126,7 +126,7 @@ const OrderDetailScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={["#007AFF"]}
+            colors={["#1b0363ff"]}
           />
         }
       >

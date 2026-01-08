@@ -118,7 +118,7 @@ const BottomTabBar: React.FC = () => {
         color: withTiming(active ? "#270984" : "#A0A0A0", {
           duration: 20,
         }),
-        fontSize: withTiming(active ? 12 : 11, {
+        fontSize: withTiming(active ? 14 : 14, {
           duration: 20,
         }),
       };
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     marginTop: 4,
-    fontSize: 11,
+    fontSize: 14,
     textAlign: "center",
     fontWeight: "500",
   },

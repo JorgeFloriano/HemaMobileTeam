@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
     color: "white",
   },
@@ -136,12 +136,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   detailLabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#999",
     fontWeight: "500",
   },
   detailValue: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#333",
     fontWeight: "400",
   },

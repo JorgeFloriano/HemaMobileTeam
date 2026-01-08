@@ -1,3 +1,4 @@
+// app/(tabs)/on-call/index.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -8,147 +9,85 @@ import {
   Modal,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import api from "@/src/services/api";
 import OnCallTecCard from "@/src/components/OnCallTecCard";
 import { FontAwesome } from "@expo/vector-icons";
 import CheckboxInput from "@/src/components/CheckboxInput";
 import Button from "@/src/components/Button";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/src/contexts/AuthContext";
 
 const OnCallScreen = () => {
   const [tecs, setTecs] = useState([]);
   const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTec, setSelectedTec] = useState<any>(null);
   const [tempSelectedIds, setTempSelectedIds] = useState<number[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter();
+  const { user, logout } = useAuth();
 
+  // Função para fazer logout
+  const performLogout = async () => {
+    await logout();
+    router.replace("/login");
+  };
+
+  // Se não tem usuário, manda para o login, ou use useEffect para carregar os dados iniciais
   useEffect(() => {
-    loadData();
+    if (!user || !user.id || !user.supId) {
+      performLogout();
+      return;
+    }
+    loadInitialData();
   }, []);
 
-  const loadData = async () => {
-    try {
-      // Quando o Laravel estiver pronto, use:
-      // const [resTecs, resClients] = await Promise.all([
-      //   api.get("/emergency/tecs"),
-      //   api.get("/emergency/clients"),
-      // ]);
-      // setTecs(resTecs.data);
-      // setClients(resClients.data);
-
-      // MOCK PARA TESTE (APAGUE QUANDO TIVER API):
-      setTecs([
-        {
-          id: 1,
-          on_call: 1,
-          emergency_order_id: null,
-          user: { name: "Jorge", function: "TI" },
-          emergency_clients: [],
-        },
-        {
-          id: 2,
-          on_call: 0,
-          emergency_order_id: null,
-          user: { name: "João", function: "TI" },
-          emergency_clients: [],
-        },
-        {
-          id: 3,
-          on_call: 1,
-          emergency_order_id: 6645,
-          user: { name: "Maria", function: "TI" },
-          emergency_clients: [],
-        },
-      ]);
-      setClients([
-        {
-          id: 101,
-          name: "Cliente Teste",
-        },
-        {
-          id: 102,
-          name: "Cliente Teste 2",
-        },
-        {
-          id: 103,
-          name: "Cliente Teste 3",
-        },
-        {
-          id: 104,
-          name: "Cliente Teste 4",
-        },
-        {
-          id: 105,
-          name: "Cliente Teste 5",
-        },
-        {
-          id: 106,
-          name: "Cliente Teste 6",
-        },
-        {
-          id: 107,
-          name: "Cliente Teste 7",
-        },
-        {
-          id: 108,
-          name: "Cliente Teste 8",
-        },
-        {
-          id: 109,
-          name: "Cliente Teste 9",
-        },
-        {
-          id: 110,
-          name: "Cliente Teste 10",
-        },
-        {
-          id: 111,
-          name: "Cliente Teste 11",
-        },
-        {
-          id: 112,
-          name: "Cliente Teste 12",
-        },
-        {
-          id: 113,
-          name: "Cliente Teste 13",
-        },
-        {
-          id: 114,
-          name: "Cliente Teste 14",
-        },
-        {
-          id: 115,
-          name: "Cliente Teste 15",
-        },
-        {
-          id: 116,
-          name: "Cliente Teste 16",
-        },
-        {
-          id: 117,
-          name: "Cliente Teste 17",
-        },
-        {
-          id: 118,
-          name: "Cliente Teste 18",
-        },
-        {
-          id: 119,
-          name: "Cliente Teste 19",
-        },
-        {
-          id: 120,
-          name: "Cliente Teste 20",
-        },
-      ]);
-    } catch (err) {
-      console.error("Erro ao carregar dados", err);
+  const handleError = (err: any, message: string) => {
+    console.error(message, err);
+    const isSup = err.response?.data?.isSup;
+    const errorMessage = err.response?.data?.message || message;
+    if (isSup === false) {
+      performLogout();
+      return;
     }
+    Alert.alert("Erro", errorMessage);
+  };
+
+  const loadInitialData = async () => {
+    setLoading(true);
+    await loadData();
+    setLoading(false);
+  };
+
+  const loadData = async (showRefreshing = false) => {
+    try {
+      if (showRefreshing) setRefreshing(true);
+
+      const [resTecs, resClients] = await Promise.all([
+        api.get("/emergency/tecs"),
+        api.get("/emergency/clients"),
+      ]);
+      setTecs(resTecs.data);
+      setClients(resClients.data);
+    } catch (err: any) {
+      handleError(err, "Erro ao carregar dados iniciais");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    loadData(true);
   };
 
   const openClientModal = (tec: any) => {
     setSelectedTec(tec);
+    // Agora mapeamos os objetos que vêm do Laravel para um array de IDs
     const currentIds = tec.emergency_clients?.map((c: any) => c.id) || [];
     setTempSelectedIds(currentIds);
     setModalVisible(true);
@@ -162,33 +101,50 @@ const OnCallScreen = () => {
     );
   };
 
+  const handleViewOrder = (orderId: number | string) => {
+    router.push(`/order-sat/${orderId}/order-sat-show`);
+  };
+
   const handleSave = async () => {
     try {
-      // await api.put(`/emergency/tecs/${selectedTec.id}/clients`, { clients: tempSelectedIds });
+      await api.put(`/emergency/tecs/${selectedTec.id}/clients`, {
+        clients: tempSelectedIds,
+      });
       Alert.alert("Sucesso", "Vínculos atualizados!");
       setModalVisible(false);
       loadData();
-    } catch (err) {
-      Alert.alert("Erro", "Não foi possível salvar.");
+    } catch (err: any) {
+      handleError(err, "Erro ao atualizar vínculos clientes/técnicos");
     }
   };
 
   const toggleOnCall = async (tecId: number, value: boolean) => {
     try {
-      // await api.put(`/emergency/tecs/${tecId}/toggle`, { on_call: value });
+      await api.put(`/emergency/tecs/${tecId}/toggle`, { on_call: value });
       loadData();
-    } catch (e) {
-      Alert.alert("Erro", "Não foi possível alterar o status.");
+    } catch (err: any) {
+      handleError(err, "Erro ao atualizar condição de sobreaviso");
     }
   };
+
+  // Se estiver carregando pela primeira vez
+  if (loading && !refreshing) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#1b0363ff" />
+        <Text style={styles.loadingText}>Carregando colaboradores...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Sobreaviso Emergencial</Text>
         <Text style={styles.infoText}>
-          Técnicos ativos recebem alertas de SATs fora do horário
-          comercial conforme a disponibilidade e cliente vinculado.
+          Técnicos ATIVOS recebem alertas de SATs fora do horário comercial se o
+          CLIENTE estiver vinculado e se estiver DISPONÍVEL (não está ocupado em
+          outra SAT emergencial).
         </Text>
       </View>
 
@@ -200,10 +156,18 @@ const OnCallScreen = () => {
             tec={item}
             onToggleActive={(val) => toggleOnCall(item.id, val)}
             onManageClients={() => openClientModal(item)} // Corrigido para usar a função que abre o modal corretamente
-            onViewOrder={(id) => console.log(id)}
+            onViewOrder={(id) => handleViewOrder(id)}
           />
         )}
         contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={["#1b0363ff"]}
+            tintColor="#1b0363ff"
+          />
+        }
       />
 
       <Modal visible={modalVisible} transparent animationType="fade">
@@ -272,7 +236,7 @@ const styles = StyleSheet.create({
   },
   header: { paddingVertical: 16 },
   title: { fontSize: 24, fontWeight: "bold", color: "#333", marginBottom: 8 },
-  infoText: { fontSize: 13, color: "#666", lineHeight: 18 },
+  infoText: { fontSize: 14, color: "#666", lineHeight: 18 },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
@@ -311,12 +275,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
-  alertText: { marginLeft: 10, color: "#1b0363ff", fontSize: 12, flex: 1 },
-  modalList: { paddingHorizontal: 16 },
+  alertText: { marginLeft: 10, color: "#1b0363ff", fontSize: 14, flex: 1 },
+  modalList: { paddingHorizontal: 16, paddingTop: 5 },
   modalFooter: {
     justifyContent: "flex-end",
     flexDirection: "row",
-    padding: 15,
+    padding: 16,
     borderTopWidth: 1,
     borderTopColor: "#eee",
     gap: 10,
@@ -324,11 +288,22 @@ const styles = StyleSheet.create({
   cancelBtn: { flex: 1, padding: 12, alignItems: "center" },
   cancelBtnText: { color: "#999", fontWeight: "bold" },
   saveBtn: {
-    marginTop: 16,
+    padding: 12,
     width: "auto",
-    alignSelf: "flex-start",
+    flex: 1,
   },
   saveBtnText: { color: "white", fontSize: 16, fontWeight: "bold" },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#666",
+  },
 });
 
 export default OnCallScreen;

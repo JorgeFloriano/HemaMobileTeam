@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   debugText: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#666",
   },
 });
