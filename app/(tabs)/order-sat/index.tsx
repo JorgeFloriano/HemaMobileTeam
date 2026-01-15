@@ -8,12 +8,15 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
 import api from "@/src/services/api";
 import SupervisorOrderCard from "@/src/components/SupervisorOrderCard";
 import Button from "@/src/components/Button";
 import { useAuth } from "@/src/contexts/AuthContext";
+import { FontAwesome } from "@expo/vector-icons";
+import OrdersFilterModal from "@/src/components/OrdersFilterModal";
 
 // Types
 export interface Order {
@@ -77,14 +80,47 @@ interface OrdersResponse {
   message?: string;
 }
 
+interface FilterState {
+  client_id: string;
+  tec_id: string;
+  finished: string;
+  date_start: string;
+  date_end: string;
+  date_type: "order_open_date" | "last_note_date";
+}
+
+// 1. Defina o estado inicial fora ou dentro do componente
+const initialFilterState: FilterState = {
+  client_id: "",
+  tec_id: "",
+  finished: "2",
+  date_start: "",
+  date_end: "",
+  date_type: "order_open_date",
+};
+
+const hasActiveFilters = (activeFilters: FilterState) => {
+  return (
+    activeFilters.client_id !== "" ||
+    activeFilters.tec_id !== "" ||
+    activeFilters.finished !== "2" || // "2" é o padrão (Todas)
+    activeFilters.date_start !== "" ||
+    activeFilters.date_end !== ""
+  );
+};
+
 const OrdersScreen = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [tecs, setTecs] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [activeFilters, setActiveFilters] =
+    useState<FilterState>(initialFilterState);
 
   // Função para fazer logout
   const performLogout = async () => {
@@ -92,13 +128,43 @@ const OrdersScreen = () => {
     router.replace("/login");
   };
 
+  // Navigate to create order
+  const handleCreateOrder = () => {
+    if (!user?.supId) {
+      Alert.alert(
+        "Acesso negado",
+        "Sem permissão para criar solicitações de assistência técnica."
+      );
+      return router.push("/(tabs)/order-sat");
+    }
+    router.push("/(tabs)/order-sat/order-create");
+  };
+
   // Função para carregar técnicos (allTecs)
   const loadTecs = async () => {
     try {
       const response = await api.get("/tecs/list"); // Ajuste o endpoint conforme seu Laravel
-      setTecs(response.data);
+      // Criamos o item "Não atribuído" seguindo a estrutura do seu objeto de técnicos
+      const unassignedTec = {
+        id: "0",
+        user: {
+          name: "Não atribuído",
+          surname: "",
+        },
+      };
+      setTecs([unassignedTec, ...response.data]);
     } catch (err) {
       console.error("Erro ao carregar técnicos:", err);
+    }
+  };
+
+  const loadClients = async () => {
+    try {
+      // Ajuste o endpoint conforme sua API (ex: /emergency/clients ou /clients/list)
+      const response = await api.get("/emergency/clients");
+      setClients(response.data);
+    } catch (err) {
+      console.error("Erro ao carregar clientes:", err);
     }
   };
 
@@ -139,12 +205,12 @@ const OrdersScreen = () => {
   // Ajuste no loadOrders para carregar técnicos também
   const loadInitialData = async () => {
     setLoading(true);
-    await Promise.all([loadOrders(), loadTecs()]);
+    await Promise.all([loadOrders(), loadTecs(), loadClients()]);
     setLoading(false);
   };
 
   // Load orders
-  const loadOrders = async (showRefreshing = false) => {
+  const loadOrders = async (showRefreshing = false, params = {}) => {
     try {
       if (showRefreshing) {
         setRefreshing(true);
@@ -153,7 +219,7 @@ const OrdersScreen = () => {
       }
 
       setError(null);
-      const response = await api.get<OrdersResponse>("/sat/orders");
+      const response = await api.get<OrdersResponse>("/sat/orders", { params });
       setOrders(response.data.orders);
     } catch (err: any) {
       if (err.response?.data?.error) {
@@ -181,6 +247,26 @@ const OrdersScreen = () => {
   // Pull to refresh
   const handleRefresh = () => {
     loadOrders(true);
+  };
+
+  // Função para converter data DD/MM/YYYY para YYYY-MM-DD (Laravel format)
+  const formatDateForApi = (dateStr: string) => {
+    if (!dateStr) return "";
+    return dateStr.split("/").reverse().join("-");
+  };
+
+  const handleApplyFilters = (filters: FilterState) => {
+    setActiveFilters(filters);
+    const apiParams: FilterState = {
+      ...filters,
+      date_start: formatDateForApi(filters.date_start),
+      date_end: formatDateForApi(filters.date_end),
+    };
+
+    setActiveFilters(apiParams);
+    // Passamos false para 'showRefreshing' e os filtros no segundo parâmetro
+    loadOrders(false, apiParams);
+    setIsFilterVisible(false); // Fecha o modal após aplicar
   };
 
   // Renderização do Item atualizada
@@ -237,7 +323,30 @@ const OrdersScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcome}>Solicitações de Assist. Técnica</Text>
+        <View style={styles.headerTopRow}>
+          <Text style={styles.welcome}>SATs</Text>
+
+          <View style={styles.headerButtons}>
+            {/* Botão de Filtro */}
+            <TouchableOpacity
+              style={styles.headerIconButton}
+              onPress={() => setIsFilterVisible(true)}
+            >
+              <FontAwesome name="filter" size={22} color="#1b0363ff" />
+              {hasActiveFilters(activeFilters) && <View style={styles.filterBadgeSmall} />}
+            </TouchableOpacity>
+
+            {/* Segundo Botão (Ex: Logout ou Outro) */}
+            <TouchableOpacity
+              style={[styles.headerIconButton, { marginLeft: 12 }]}
+              onPress={() => handleCreateOrder()}
+            >
+              <FontAwesome name="plus" size={22} color="#1b0363ff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Text style={styles.subtitle}>Solicitações de Assistência Técnica</Text>
       </View>
 
       <FlatList
@@ -255,6 +364,19 @@ const OrdersScreen = () => {
           />
         }
         ListEmptyComponent={renderEmptyState}
+      />
+
+      <OrdersFilterModal
+        visible={isFilterVisible}
+        filters={activeFilters} // Passa os filtros atuais
+        setFilters={setActiveFilters} // Passa a função para atualizar
+        onClose={() => setIsFilterVisible(false)}
+        onApply={handleApplyFilters}
+        onClear={() => {
+          setActiveFilters(initialFilterState);
+        }}
+        clients={clients}
+        tecs={tecs}
       />
     </View>
   );
@@ -332,6 +454,45 @@ const styles = StyleSheet.create({
   },
   errorStateButton: {
     minWidth: 120,
+  },
+  
+  headerTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between", // Empurra o título para a esquerda e botões para a direita
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  headerButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: "white", // Fundo branco para parecer um botão limpo
+    justifyContent: "center",
+    alignItems: "center",
+    color: "#1b0363ff", // Sua cor principal
+    borderWidth: 1,
+    borderColor: "#1b0363ff",
+    // Sombra leve para dar profundidade
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  filterBadgeSmall: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 10,
+    height: 10,
+    backgroundColor: "#ff3b30",
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: "white",
   },
 });
 

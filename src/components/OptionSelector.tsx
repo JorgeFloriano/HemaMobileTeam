@@ -63,7 +63,7 @@ const OptionSelector = forwardRef<OptionSelectorRef, OptionSelectorProps>(({
   const getSelectedOptionName = () => {
     if (!selectedId) return placeholder || "Selecione uma opção";
     const selected = options.find((option) => option.id === selectedId);
-    return selected ? selected.description : placeholder || "Selecione uma opção";
+    return selected ? (selected.id + " - " + selected.description) : placeholder || "Selecione uma opção";
   };
 
   const handleOptionSelect = (option: Option) => {
@@ -164,7 +164,7 @@ const OptionSelector = forwardRef<OptionSelectorRef, OptionSelectorProps>(({
                       selectedId === option.id && styles.modalItemTextSelected,
                     ]}
                   >
-                    {option.description}
+                    {option.id} - {option.description}
                   </Text>
                   {selectedId === option.id && (
                     <Text style={styles.checkmark}><FontAwesome name="check" size={24} color="white" /></Text>

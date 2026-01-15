@@ -186,13 +186,6 @@ const OnCallScreen = () => {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.alertBox}>
-              <FontAwesome name="info-circle" size={16} color="#007AFF" />
-              <Text style={styles.alertText}>
-                Máximo de 3 clientes por técnico recomendado.
-              </Text>
-            </View>
-
             <ScrollView style={styles.modalList}>
               {clients.map((client: any) => (
                 <CheckboxInput
@@ -267,15 +260,7 @@ const styles = StyleSheet.create({
     fontSize: 29,
     color: "#6b7280",
   },
-  alertBox: {
-    flexDirection: "row",
-    backgroundColor: "#e3f2fd",
-    padding: 12,
-    margin: 15,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  alertText: { marginLeft: 10, color: "#1b0363ff", fontSize: 14, flex: 1 },
+ 
   modalList: { paddingHorizontal: 16, paddingTop: 5 },
   modalFooter: {
     justifyContent: "flex-end",

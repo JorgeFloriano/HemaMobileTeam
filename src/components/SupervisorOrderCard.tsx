@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Modal,
   ScrollView,
-  ActivityIndicator,
 } from "react-native";
 import { Order } from "@/app/(tabs)/order-notes";
 import { FontAwesome } from "@expo/vector-icons";
