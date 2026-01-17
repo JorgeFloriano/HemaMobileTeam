@@ -175,8 +175,8 @@ const OnCallScreen = () => {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <View>
-                <Text style={styles.modalTitleText}>Vincular Clientes</Text>
-                <Text style={styles.modalSub}>{selectedTec?.user.name}</Text>
+                <Text style={styles.modalTitleText}>{selectedTec?.user.name}</Text>
+                <Text style={styles.modalSub}>Gerenciar clientes vinculados</Text>
               </View>
               <TouchableOpacity
                 style={styles.closeButton}

@@ -201,7 +201,7 @@ const DateInput = forwardRef<DateInputRef, DateInputProps>((props, ref) => {
           <BaseInput
             {...props}
             ref={inputRef}
-            placeholder={props.placeholder || "Toque para selecionar data"}
+            placeholder={props.placeholder || "Selecionar data"}
             maxLength={10}
             onChangeText={handleChangeText}
             isFocused={isFocused}

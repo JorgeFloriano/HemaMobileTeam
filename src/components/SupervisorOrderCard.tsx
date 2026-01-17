@@ -196,15 +196,7 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
                         selectedId === tec.id && styles.modalItemTextSelected,
                       ]}
                     >
-                      {tec.user.name} {tec.user.surname}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 11,
-                        color: selectedId === tec.id ? "#ddd" : "#999",
-                      }}
-                    >
-                      ID: {tec.id} • {tec.user.function || "Técnico"}
+                      {tec.id} - {tec.user.name} {tec.user.surname}
                     </Text>
                   </View>
 
@@ -351,7 +343,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalItemSelected: { backgroundColor: "#1b0363ff" },
-  modalItemText: { fontSize: 16, color: "#333", fontWeight: "500" },
+  modalItemText: { fontSize: 16, color: "#333"},
   modalItemTextSelected: { color: "white" },
 });
 

@@ -6,7 +6,7 @@ import pushTokenManager from "./pushTokenManager";
 // Use your computer's IP address, not localhost!
 // Find your IP: ipconfig (Windows) or ifconfig (Linux/Mac)
 
-// const API_BASE_URL = "http://10.208.72.215:8000/api";
+//const API_BASE_URL = "http://192.168.0.113:8000/api";
 const API_BASE_URL = "https://hematest.jldev.app.br/api"; // Remote server
 
 const api = axios.create({
@@ -56,7 +56,7 @@ api.interceptors.request.use(async (config) => {
   if (!csrfToken) {
     try {
       console.log("🔐 Setting up CSRF token...");
-      //await axios.get("http://10.208.72.215:8000/sanctum/csrf-cookie", {
+      //await axios.get("http://192.168.0.113:8000/sanctum/csrf-cookie", {
       await axios.get('https://hematest.jldev.app.br/sanctum/csrf-cookie', {
         withCredentials: true,
       });

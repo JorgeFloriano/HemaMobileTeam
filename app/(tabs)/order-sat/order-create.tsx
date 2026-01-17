@@ -8,19 +8,19 @@ import OptionSelector from "@/src/components/OptionSelector";
 import KeyboardAvoindingContainer from "@/src/components/KeyboardAvoidingContainer";
 
 interface Type {
-  id: string;
+  id: string | number;
   description: string;
 }
 
 // Como o dado vem do Laravel
 interface LaravelClient {
-  id: number | string;
+  id: number;
   name: string;
 }
 
 // Como o seu componente OptionSelector espera
 interface Client {
-  id: string;
+  id: string | number;
   description: string;
 }
 
@@ -206,11 +206,11 @@ const CreateOrderScreen = () => {
   };
 
   const handleTypeSelect = (type: Type) => {
-    updateFormData("order_type_id", type.id);
+    updateFormData("order_type_id", type.id.toString());
   };
 
   const handleClientSelect = (client: Client) => {
-    updateFormData("client_id", client.id);
+    updateFormData("client_id", client.id.toString());
   };
 
   return (

@@ -1,3 +1,4 @@
+// src/components/UserCard.tsx
 import React from "react";
 import { View, Text, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";

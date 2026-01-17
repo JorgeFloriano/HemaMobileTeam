@@ -171,7 +171,7 @@ const TimeInput = forwardRef<TimeInputRef, TimeInputProps>((props, ref) => {
           <BaseInput
             {...props}
             ref={inputRef}
-            placeholder={props.placeholder || "Toque para selecionar hora"}
+            placeholder={props.placeholder || "Selecionar hora"}
             maxLength={5}
             onChangeText={handleChangeText}
             isFocused={isFocused}

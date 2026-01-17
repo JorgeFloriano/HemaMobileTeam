@@ -1,6 +1,6 @@
 // src/components/OnCallTecCard.tsx
 import React from "react";
-import { View, Text, StyleSheet, Switch, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Switch } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Button from "@/src/components/Button";
 

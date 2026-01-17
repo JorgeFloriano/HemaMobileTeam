@@ -7,7 +7,6 @@ import {
   Pressable,
   Keyboard,
   StyleSheet,
-  StatusBar,
 } from "react-native";
 
 interface KeyboardAvoidingContainerProps {

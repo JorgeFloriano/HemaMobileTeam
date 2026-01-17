@@ -551,8 +551,8 @@ const CreateOrderNoteScreen = () => {
           label="Tipo de Atendimento"
           placeholder="Selecione o tipo de atendimento"
           options={types}
-          selectedId={formData.note_type_id}
-          onSelect={(item) => updateFormData("note_type_id", item.id)}
+          selectedId={formData.note_type_id.toString()}
+          onSelect={(item) => updateFormData("note_type_id", item.id.toString())}
           required
         />
 
@@ -561,8 +561,8 @@ const CreateOrderNoteScreen = () => {
           label="Defeito"
           placeholder="Selecione o defeito"
           options={defects}
-          selectedId={formData.defect_id}
-          onSelect={(item) => updateFormData("defect_id", item.id)}
+          selectedId={formData.defect_id.toString()}
+          onSelect={(item) => updateFormData("defect_id", item.id.toString())}
           required
         />
 
@@ -572,7 +572,7 @@ const CreateOrderNoteScreen = () => {
           placeholder="Selecione a causa"
           options={causes}
           selectedId={formData.cause_id}
-          onSelect={(item) => updateFormData("cause_id", item.id)}
+          onSelect={(item) => updateFormData("cause_id", item.id.toString())}
           required
         />
 
@@ -582,7 +582,7 @@ const CreateOrderNoteScreen = () => {
           placeholder="Selecione a solução"
           options={solutions}
           selectedId={formData.solution_id}
-          onSelect={(item) => updateFormData("solution_id", item.id)}
+          onSelect={(item) => updateFormData("solution_id", item.id.toString())}
           required
         />
 
@@ -690,7 +690,7 @@ const CreateOrderNoteScreen = () => {
                 description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
               }))}
               selectedId={formData.first_tec}
-              onSelect={(item) => updateFormData("first_tec", item.id)}
+              onSelect={(item) => updateFormData("first_tec", item.id.toString())}
               required
             />
           </View>
@@ -717,7 +717,7 @@ const CreateOrderNoteScreen = () => {
                 })),
               ]}
               selectedId={formData.second_tec}
-              onSelect={(item) => updateFormData("second_tec", item.id)}
+              onSelect={(item) => updateFormData("second_tec", item.id.toString())}
             />
           </View>
           <View style={styles.buttonRow}>

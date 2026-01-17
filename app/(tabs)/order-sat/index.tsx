@@ -81,9 +81,9 @@ interface OrdersResponse {
 }
 
 interface FilterState {
-  client_id: string;
-  tec_id: string;
-  finished: string;
+  client_id: string | number;
+  tec_id: string | number;
+  finished: string | number;
   date_start: string;
   date_end: string;
   date_type: "order_open_date" | "last_note_date";

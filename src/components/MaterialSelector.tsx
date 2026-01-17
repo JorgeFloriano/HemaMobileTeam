@@ -58,7 +58,7 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
 
     // Handle material selection
     const handleMaterialSelect = (material: {
-      id: string;
+      id: string | number;
       description: string;
     }) => {
       const selectedMaterial = materials.find((m) => m.id === material.id);
@@ -133,7 +133,7 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
         <OptionSelector
           ref={optionSelectorRef}
           options={materials}
-          selectedId={selectedMaterialId}
+          selectedId={selectedMaterialId.toString()}
           onSelect={handleMaterialSelect}
           placeholder={placeholder}
           label="Registrar Materiais Utilizados"

@@ -1,4 +1,4 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import {
   Modal,
@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 interface Option {
-  id: string;
+  id: string | number;
   description: string;
 }
 
@@ -32,152 +32,169 @@ export interface OptionSelectorRef {
   clearError: () => void;
 }
 
-const OptionSelector = forwardRef<OptionSelectorRef, OptionSelectorProps>(({
-  options,
-  selectedId,
-  onSelect,
-  label,
-  placeholder,
-  required = false,
-  error = false,
-  errorMessage = "Este campo é obrigatório",
-}, ref) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [localError, setLocalError] = useState(false);
+const OptionSelector = forwardRef<OptionSelectorRef, OptionSelectorProps>(
+  (
+    {
+      options,
+      selectedId,
+      onSelect,
+      label,
+      placeholder,
+      required = false,
+      error = false,
+      errorMessage = "Este campo é obrigatório",
+    },
+    ref,
+  ) => {
+    const [modalVisible, setModalVisible] = useState(false);
+    const [localError, setLocalError] = useState(false);
 
-  // Expose methods to parent component
-  useImperativeHandle(ref, () => ({
-    focus: () => {
+    // Expose methods to parent component
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        setModalVisible(true);
+      },
+      validate: () => {
+        const isValid = !required || !!selectedId;
+        setLocalError(!isValid);
+        return isValid;
+      },
+      clearError: () => {
+        setLocalError(false);
+      },
+    }));
+
+    const getSelectedOptionName = () => {
+      if (!selectedId) return placeholder || "Selecione uma opção";
+
+      const selected = options.find((option) => option.id === selectedId);
+
+      if (!selected) return placeholder || "Selecione uma opção";
+
+      // Verifica se o ID contém apenas caracteres numéricos
+      const isNumeric = /^\d+$/.test(selected.id?.toString());
+
+      return isNumeric
+        ? `${selected.id} - ${selected.description}`
+        : selected.description;
+    };
+
+    const handleOptionSelect = (option: Option) => {
+      onSelect(option);
+      setModalVisible(false);
+      // Clear error when user selects an option
+      if (localError) {
+        setLocalError(false);
+      }
+    };
+
+    const handleOpenModal = () => {
       setModalVisible(true);
-    },
-    validate: () => {
-      const isValid = !required || !!selectedId;
-      setLocalError(!isValid);
-      return isValid;
-    },
-    clearError: () => {
-      setLocalError(false);
-    },
-  }));
+      Keyboard.dismiss();
+      // Clear error when user interacts with the selector
+      if (localError) {
+        setLocalError(false);
+      }
+    };
 
-  const getSelectedOptionName = () => {
-    if (!selectedId) return placeholder || "Selecione uma opção";
-    const selected = options.find((option) => option.id === selectedId);
-    return selected ? (selected.id + " - " + selected.description) : placeholder || "Selecione uma opção";
-  };
+    const handleCloseModal = () => {
+      setModalVisible(false);
+      // Validate on close if required and no selection
+      if (required && !selectedId) {
+        setLocalError(true);
+      }
+    };
 
-  const handleOptionSelect = (option: Option) => {
-    onSelect(option);
-    setModalVisible(false);
-    // Clear error when user selects an option
-    if (localError) {
-      setLocalError(false);
-    }
-  };
+    const isError = localError || error;
 
-  const handleOpenModal = () => {
-    setModalVisible(true);
-     Keyboard.dismiss();
-    // Clear error when user interacts with the selector
-    if (localError) {
-      setLocalError(false);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setModalVisible(false);
-    // Validate on close if required and no selection
-    if (required && !selectedId) {
-      setLocalError(true);
-    }
-  };
-
-  const isError = localError || error;
-
-  return (
-    <View style={styles.inputGroup}>
-      {label && (
-        <View style={styles.labelContainer}>
-          {required && <View style={styles.requiredDot} />}
-          <Text style={[
-            styles.label
-          ]}>
-            {label}
-            {required}
-          </Text>
-        </View>
-      )}
-      
-      <TouchableOpacity
-        style={[
-          styles.selectButton
-        ]}
-        onPress={handleOpenModal}
-      >
-        <Text
-          style={[
-            styles.selectButtonText,
-            !selectedId && styles.placeholderText,
-            isError && styles.selectButtonTextError,
-          ]}
-        >
-          {isError && !selectedId ? errorMessage : getSelectedOptionName()}
-        </Text>
-        <Text style={[
-          styles.dropdownIcon,
-          isError && styles.dropdownIconError
-        ]}>▼</Text>
-      </TouchableOpacity>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={handleCloseModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {label || "Selecione uma opção"}
-              </Text>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={handleCloseModal}
-              >
-                <Text style={styles.closeButtonText}>×</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.modalList}>
-              {options.map((option) => (
-                <TouchableOpacity
-                  key={option.id}
-                  style={[
-                    styles.modalItem,
-                    selectedId === option.id && styles.modalItemSelected,
-                  ]}
-                  onPress={() => handleOptionSelect(option)}
-                >
-                  <Text
-                    style={[
-                      styles.modalItemText,
-                      selectedId === option.id && styles.modalItemTextSelected,
-                    ]}
-                  >
-                    {option.id} - {option.description}
-                  </Text>
-                  {selectedId === option.id && (
-                    <Text style={styles.checkmark}><FontAwesome name="check" size={24} color="white" /></Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+    return (
+      <View style={styles.inputGroup}>
+        {label && (
+          <View style={styles.labelContainer}>
+            {required && <View style={styles.requiredDot} />}
+            <Text style={[styles.label]}>
+              {label}
+              {required}
+            </Text>
           </View>
-        </View>
-      </Modal>
-    </View>
-  );
-});
+        )}
+
+        <TouchableOpacity
+          style={[styles.selectButton]}
+          onPress={handleOpenModal}
+        >
+          <Text
+            style={[
+              styles.selectButtonText,
+              !selectedId && styles.placeholderText,
+              isError && styles.selectButtonTextError,
+            ]}
+          >
+            {isError && !selectedId ? errorMessage : getSelectedOptionName()}
+          </Text>
+          <Text
+            style={[styles.dropdownIcon, isError && styles.dropdownIconError]}
+          >
+            ▼
+          </Text>
+        </TouchableOpacity>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={handleCloseModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>
+                  {label || "Selecione uma opção"}
+                </Text>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={handleCloseModal}
+                >
+                  <Text style={styles.closeButtonText}>×</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.modalList}>
+                {options.map((option) => (
+                  <TouchableOpacity
+                    key={option.id}
+                    style={[
+                      styles.modalItem,
+                      selectedId === option.id && styles.modalItemSelected,
+                    ]}
+                    onPress={() => handleOptionSelect(option)}
+                  >
+                    {/* Check if the id is a number, then display as "id - description" */}
+                    <Text
+                      style={[
+                        styles.modalItemText,
+                        selectedId === option.id &&
+                          styles.modalItemTextSelected,
+                      ]}
+                    >
+                      {/^\d+$/.test(option.id?.toString())
+                        ? `${option.id} - ${option.description}`
+                        : option.description}
+                    </Text>
+                    {selectedId === option.id && (
+                      <Text style={styles.checkmark}>
+                        <FontAwesome name="check" size={24} color="white" />
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    );
+  },
+);
 
 // Assign displayName to the component
 OptionSelector.displayName = "OptionSelector";
@@ -203,7 +220,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
   },
-  
+
   selectButton: {
     backgroundColor: "white",
     borderWidth: 1,
@@ -215,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  
+
   selectButtonText: {
     fontSize: 16,
     color: "#333",
@@ -274,7 +291,7 @@ const styles = StyleSheet.create({
     color: "#6b7280",
   },
   modalList: {
-    maxHeight: 300,
+    maxHeight: 500,
   },
   modalItem: {
     padding: 16,

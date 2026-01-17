@@ -12,9 +12,9 @@ import Button from "./Button";
 
 // Interface para o estado interno de filtros
 interface FilterState {
-  client_id: string;
-  tec_id: string;
-  finished: string;
+  client_id: string | number;
+  tec_id: string | number;
+  finished: string | number;
   date_start: string;
   date_end: string;
   date_type: "order_open_date" | "last_note_date"; // Tipagem estrita para o tipo de data
@@ -43,9 +43,9 @@ const OrdersFilterModal: React.FC<OrdersFilterModalProps> = ({
 }) => {
 
   const statusOptions = [
-    { id: "2", description: "SATs (todas)" },
-    { id: "0", description: "Não Finalizadas" },
-    { id: "1", description: "Finalizadas" },
+    { id: "2", description: "Todas (Finalizadas ou Não)" },
+    { id: "0", description: "Somente Não Finalizadas" },
+    { id: "1", description: "Somente Finalizadas" },
   ];
 
   const dateTypeOptions = [
@@ -69,7 +69,7 @@ const OrdersFilterModal: React.FC<OrdersFilterModalProps> = ({
             <OptionSelector
               label="Status"
               options={statusOptions}
-              selectedId={filters.finished}
+              selectedId={filters.finished.toString()}
               onSelect={(opt) => setFilters({ ...filters, finished: opt.id })}
             />
 
@@ -81,7 +81,7 @@ const OrdersFilterModal: React.FC<OrdersFilterModalProps> = ({
                 id: c.id.toString(),
                 description: c.name,
               }))}
-              selectedId={filters.client_id}
+              selectedId={filters.client_id.toString()}
               onSelect={(opt) => setFilters({ ...filters, client_id: opt.id })}
             />
 
@@ -93,7 +93,7 @@ const OrdersFilterModal: React.FC<OrdersFilterModalProps> = ({
                 id: t.id.toString(),
                 description: t.user.name || "Não identificado",
               }))}
-              selectedId={filters.tec_id}
+              selectedId={filters.tec_id.toString()}
               onSelect={(opt) => setFilters({ ...filters, tec_id: opt.id })}
             />
 
