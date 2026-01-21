@@ -24,8 +24,10 @@ import Button from "@/src/components/Button";
 const LoginScreen: React.FC = () => {
   const router = useRouter();
   const { login } = useAuth();
-  const [username, setUsername] = useState("man.system");
+  const [username, setUsername] = useState("alexandre.machado");
+  //const [username, setUsername] = useState("");
   const [password, setPassword] = useState("science123J@");
+  //const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 

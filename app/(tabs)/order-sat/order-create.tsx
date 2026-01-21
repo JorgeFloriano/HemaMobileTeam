@@ -110,12 +110,17 @@ const CreateOrderScreen = () => {
       if (error.response?.status === 401) {
         errorMessage = "Sessão expirada. Faça login novamente.";
         // Optional: Redirect to login
-        // router.push('/login');
-      } else if (error.response?.data?.message) {
+        router.push("/login");
+      } else if (
+        error.response?.data?.message &&
+        error.response?.status === 403
+      ) {
         errorMessage = error.response.data.message;
+        router.back();
+        Alert.alert("Acesso Negado", errorMessage);
+      } else {
+        Alert.alert("Erro", errorMessage);
       }
-
-      Alert.alert("Erro", errorMessage);
     }
   }, [router]);
 
@@ -162,7 +167,7 @@ const CreateOrderScreen = () => {
       } else {
         Alert.alert(
           "Erro",
-          response.data.message || "Falha ao criar ordem de serviço"
+          response.data.message || "Falha ao criar ordem de serviço",
         );
       }
     } catch (error: any) {
@@ -176,7 +181,7 @@ const CreateOrderScreen = () => {
       } else {
         Alert.alert(
           "Erro",
-          error.response?.data?.message || "Falha ao criar ordem de serviço"
+          error.response?.data?.message || "Falha ao criar ordem de serviço",
         );
       }
     } finally {
@@ -206,7 +211,7 @@ const CreateOrderScreen = () => {
   };
 
   const handleTypeSelect = (type: Type) => {
-    updateFormData("order_type_id", type.id.toString());
+    updateFormData("order_type_id", type.id);
   };
 
   const handleClientSelect = (client: Client) => {

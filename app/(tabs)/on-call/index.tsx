@@ -150,7 +150,7 @@ const OnCallScreen = () => {
 
       <FlatList
         data={tecs}
-        keyExtractor={(item: any) => item.id.toString()}
+        keyExtractor={(item: any) => item.id}
         renderItem={({ item }) => (
           <OnCallTecCard
             tec={item}

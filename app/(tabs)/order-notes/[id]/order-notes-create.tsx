@@ -551,8 +551,8 @@ const CreateOrderNoteScreen = () => {
           label="Tipo de Atendimento"
           placeholder="Selecione o tipo de atendimento"
           options={types}
-          selectedId={formData.note_type_id.toString()}
-          onSelect={(item) => updateFormData("note_type_id", item.id.toString())}
+          selectedId={formData.note_type_id}
+          onSelect={(item) => updateFormData("note_type_id", item.id)}
           required
         />
 
@@ -561,8 +561,8 @@ const CreateOrderNoteScreen = () => {
           label="Defeito"
           placeholder="Selecione o defeito"
           options={defects}
-          selectedId={formData.defect_id.toString()}
-          onSelect={(item) => updateFormData("defect_id", item.id.toString())}
+          selectedId={formData.defect_id}
+          onSelect={(item) => updateFormData("defect_id", item.id)}
           required
         />
 
@@ -572,7 +572,7 @@ const CreateOrderNoteScreen = () => {
           placeholder="Selecione a causa"
           options={causes}
           selectedId={formData.cause_id}
-          onSelect={(item) => updateFormData("cause_id", item.id.toString())}
+          onSelect={(item) => updateFormData("cause_id", item.id)}
           required
         />
 
@@ -582,7 +582,7 @@ const CreateOrderNoteScreen = () => {
           placeholder="Selecione a solução"
           options={solutions}
           selectedId={formData.solution_id}
-          onSelect={(item) => updateFormData("solution_id", item.id.toString())}
+          onSelect={(item) => updateFormData("solution_id", item.id)}
           required
         />
 
@@ -687,10 +687,10 @@ const CreateOrderNoteScreen = () => {
               placeholder="Selecione o técnico principal"
               options={tecs.map((tec) => ({
                 id: tec.id,
-                description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
+                description: `${tec.user.name} ${tec.user.surname}`,
               }))}
               selectedId={formData.first_tec}
-              onSelect={(item) => updateFormData("first_tec", item.id.toString())}
+              onSelect={(item) => updateFormData("first_tec", item.id)}
               required
             />
           </View>
@@ -713,11 +713,11 @@ const CreateOrderNoteScreen = () => {
                 { id: "0", description: "Selecione o Técnico 02" },
                 ...tecs.map((tec) => ({
                   id: tec.id,
-                  description: `${tec.id} - ${tec.user.name} ${tec.user.surname}`,
+                  description: `${tec.user.name} ${tec.user.surname}`,
                 })),
               ]}
               selectedId={formData.second_tec}
-              onSelect={(item) => updateFormData("second_tec", item.id.toString())}
+              onSelect={(item) => updateFormData("second_tec", item.id)}
             />
           </View>
           <View style={styles.buttonRow}>
