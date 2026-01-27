@@ -122,11 +122,6 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
       onMaterialsChange?.(updatedMaterials);
     };
 
-    // Get selected material IDs as comma-separated string (like your original functionality)
-    // const getMaterialIdsArray = () => {
-    //   return selectedMaterials.map((material) => material.id).join(",");
-    // };
-
     return (
       <View>
         {/* Material Selection */}
@@ -142,7 +137,7 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
         {/* Selected Materials List */}
         {selectedMaterials.length > 0 && (
           <View style={styles.materialsList}>
-            <ScrollView style={styles.scrollView}>
+            <View style={styles.scrollView}>
               {selectedMaterials.map((material) => (
                 <MaterialItem
                   key={material.key}
@@ -151,17 +146,9 @@ const MaterialSelector = forwardRef<MaterialSelectorRef, MaterialSelectorProps>(
                   onRemove={removeMaterial}
                 />
               ))}
-            </ScrollView>
+            </View>
           </View>
         )}
-
-        {/* Hidden field equivalent (for form data) */}
-        {/* <TextInput
-          onChangeText={getMaterialIdsArray}
-          style={styles.hiddenInput}
-          value={getMaterialIdsArray()}
-          editable={false}
-        /> */}
 
       </View>
     );

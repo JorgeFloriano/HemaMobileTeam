@@ -49,21 +49,13 @@ const OnCallTecCard: React.FC<OnCallTecCardProps> = ({
 
       <View style={styles.footer}>
         <Button
-          title={
-            <>
-              <FontAwesome name="users" size={14} color="#1b0363ff" />
-              <Text style={styles.clientBtnText}>
-                {"  Clientes"} (
-                {tec.emergency_clients_count ??
-                  tec.emergency_clients?.length ??
-                  0}
-                )
-              </Text>
-            </>
-          }
-          onPress={() => onManageClients()}
           variant="icon"
+          icon={<FontAwesome name="users" size={14} color="#1b0363ff" />}
+          title={`Clientes (${tec.emergency_clients_count ?? tec.emergency_clients?.length ?? 0})`}
+          textStyle={styles.clientBtnText}
+          onPress={onManageClients}
         />
+        
         <View style={styles.statusBadge}>
           {isBusy ? (
             <Button

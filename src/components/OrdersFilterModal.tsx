@@ -9,6 +9,7 @@ import {
 import OptionSelector from "./OptionSelector";
 import DateInput from "./DateInput";
 import Button from "./Button";
+import React, { useMemo } from "react";
 
 // Interface para o estado interno de filtros
 interface FilterState {
@@ -41,6 +42,24 @@ const OrdersFilterModal: React.FC<OrdersFilterModalProps> = ({
   clients,
   tecs,
 }) => {
+  // 1. Otimização: Só re-calcula as listas se os dados da API mudarem
+  const clientOptions = useMemo(
+    () =>
+      clients.map((c: any) => ({
+        id: c.id.toString(),
+        description: c.name,
+      })),
+    [clients],
+  );
+
+  const tecOptions = useMemo(
+    () =>
+      tecs.map((t: any) => ({
+        id: t.id.toString(),
+        description: t.user?.name || "Técnico não identificado",
+      })),
+    [tecs],
+  );
 
   const statusOptions = [
     { id: "2", description: "Todas (Finalizadas ou Não)" },
@@ -73,26 +92,18 @@ const OrdersFilterModal: React.FC<OrdersFilterModalProps> = ({
               onSelect={(opt) => setFilters({ ...filters, finished: opt.id })}
             />
 
-            {/* Clientes (Select) - Remapeando dados da API para o componente */}
             <OptionSelector
               label="Cliente"
               placeholder="Todos os clientes"
-              options={clients.map((c: any) => ({
-                id: c.id.toString(),
-                description: c.name,
-              }))}
+              options={clientOptions} // Lista otimizada
               selectedId={filters.client_id.toString()}
               onSelect={(opt) => setFilters({ ...filters, client_id: opt.id })}
             />
 
-            {/* Técnico (Select) */}
             <OptionSelector
               label="Técnico"
               placeholder="Todos os técnicos"
-              options={tecs.map((t: any) => ({
-                id: t.id.toString(),
-                description: t.user.name || "Não identificado",
-              }))}
+              options={tecOptions} // Lista otimizada
               selectedId={filters.tec_id.toString()}
               onSelect={(opt) => setFilters({ ...filters, tec_id: opt.id })}
             />
@@ -163,7 +174,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 12,
     width: "90%",
-    maxHeight: "100%",
+    maxHeight: "90%",
     overflow: "hidden",
   },
   header: {

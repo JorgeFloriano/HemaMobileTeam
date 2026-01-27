@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Order } from "@/app/(tabs)/order-notes";
 import { FontAwesome } from "@expo/vector-icons";
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Button from "@/src/components/Button";
 
 interface SupervisorOrderCardProps {
@@ -19,7 +19,7 @@ interface SupervisorOrderCardProps {
   allTecs: any[]; // Lista de técnicos disponíveis para o supervisor escolher
   onUpdateTec: (
     orderId: number | string,
-    tecId: number | string
+    tecId: number | string,
   ) => Promise<void>;
 }
 
@@ -139,21 +139,21 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
           </View>
 
           {!order.finished ? (
-            <>
-              <Button
-                title={
-                  <>
-                    <FontAwesome6 name="arrows-rotate" size={14} color="#1b0363ff" />
-                    
-                    <Text style={styles.changeBtnText}>
-                      {'  Alterar'}
-                    </Text>
-                  </>
-                }
-                onPress={() => setModalVisible(true)}
-                variant="icon"
-              />
-            </>
+            <Button
+              variant="icon"
+              // CORREÇÃO: Usando as props corretamente para garantir alinhamento
+              icon={
+                <FontAwesome6
+                  name="arrows-rotate"
+                  size={12}
+                  color="#1b0363ff"
+                />
+              }
+              title={loading ? "..." : "Alterar"}
+              textStyle={styles.changeBtnText}
+              onPress={() => setModalVisible(true)}
+              disabled={loading}
+            />
           ) : (
             <Text style={styles.detailValue}>FINALIZADA</Text>
           )}
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalItemSelected: { backgroundColor: "#1b0363ff" },
-  modalItemText: { fontSize: 16, color: "#333"},
+  modalItemText: { fontSize: 16, color: "#333" },
   modalItemTextSelected: { color: "white" },
 });
 

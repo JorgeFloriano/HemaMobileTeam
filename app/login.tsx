@@ -137,7 +137,10 @@ const LoginScreen: React.FC = () => {
                   label="Usuário"
                   value={username}
                   onChangeText={setUsername}
-                  placeholder="Usuário"
+                  placeholder="Digite seu usuário"
+                  autoCapitalize="none" // Impede a primeira letra maiúscula
+                  autoCorrect={false} // Desativa a correção ortográfica (o que você pediu)
+                  keyboardType="email-address"
                 />
 
                 <PasswordInput
@@ -197,7 +200,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     padding: 30,
-    backgroundColor: "#1b0363ff",
+    backgroundColor: "#1b0363",
     borderBottomWidth: 1,
     borderBottomColor: "#e9ecef",
   },

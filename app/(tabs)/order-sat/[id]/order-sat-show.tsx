@@ -207,7 +207,7 @@ const OrderDetailScreen = () => {
                 </View>
 
                 <Text style={styles.description}>{note.services}</Text>
-                {note.materials.length > 0 ? (
+                {note.materials?.length > 0 ? (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.subtitle}>Materiais utilizados:</Text>

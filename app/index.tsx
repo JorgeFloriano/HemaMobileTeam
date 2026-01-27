@@ -10,7 +10,7 @@ export default function Index() {
   const { user, isLoading: authLoading } = useAuth();
   const [isCheckingEmergency, setIsCheckingEmergency] = useState(true);
   const setEmergencyOrderId = useSessionStore(
-    (state) => state.setEmergencyOrderId
+    (state) => state.setEmergencyOrderId,
   );
   const router = useRouter();
 
@@ -25,7 +25,7 @@ export default function Index() {
         return;
       }
 
-      if (user.tecId !== null) {
+      if (user.tecId) {
         try {
           // SOLICITAÇÃO DINÂMICA: Verifica o banco no momento exato
           const response = await api.get("/technician/check-emergency");
@@ -38,19 +38,19 @@ export default function Index() {
 
             // Vai direto para a ordem crítica
             router.replace(
-              `/order-notes/${emergency_order_id}/order-notes-create`
+              `/order-notes/${emergency_order_id}/order-notes-create`,
             );
-          } else {
-            // Sem emergência ativa, vai para a home
-            router.replace("/order-notes");
+            return;
           }
+          // Sem emergência ativa, vai para a home
+          router.replace("/order-notes");
         } catch (error) {
           console.error("Erro ao verificar emergência:", error);
           router.replace("/order-notes"); // Em caso de erro, segue fluxo normal
         } finally {
           setIsCheckingEmergency(false);
         }
-      } else if (user.supId !== null) {
+      } else if (user.supId) {
         router.replace("/order-sat");
       } else {
         router.replace("/login");
@@ -71,7 +71,7 @@ export default function Index() {
           backgroundColor: "#fff",
         }}
       >
-        <ActivityIndicator size="large" color="#1b0363ff" />
+        <ActivityIndicator size="large" color="#1b0363" />
       </View>
     );
   }

@@ -1,3 +1,4 @@
+// app/(tabs)/order-notes/[id]/order-notes-show.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -188,7 +189,7 @@ const OrderDetailScreen = () => {
 
         {/* Notes Section */}
 
-        {order.notes.length > 0 && (
+        {order.notes?.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Informações do Atendimento</Text>
             {order.notes.map((note, index) => (

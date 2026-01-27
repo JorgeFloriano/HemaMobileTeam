@@ -133,7 +133,7 @@ const OrdersScreen = () => {
     if (!user?.supId) {
       Alert.alert(
         "Acesso negado",
-        "Sem permissão para criar solicitações de assistência técnica."
+        "Sem permissão para criar solicitações de assistência técnica.",
       );
       return router.push("/(tabs)/order-sat");
     }
@@ -171,7 +171,7 @@ const OrdersScreen = () => {
   // Função para atualizar o técnico da ordem (API Call)
   const handleUpdateOrderTec = async (
     orderId: number | string,
-    tecId: number | string
+    tecId: number | string,
   ) => {
     try {
       const response = await api.post(`/sat/orders/${orderId}/update-tec`, {
@@ -186,7 +186,7 @@ const OrdersScreen = () => {
         // Caso o backend envie success: false por algum motivo de regra de negócio
         Alert.alert(
           "Aviso",
-          response.data.message || "Não foi possível completar a ação."
+          response.data.message || "Não foi possível completar a ação.",
         );
       }
     } catch (err: any) {
@@ -256,17 +256,18 @@ const OrdersScreen = () => {
   };
 
   const handleApplyFilters = (filters: FilterState) => {
+    // 1. Salva os filtros no estado local (com data DD/MM/YYYY para o Modal ler depois)
     setActiveFilters(filters);
-    const apiParams: FilterState = {
+
+    // 2. Cria uma cópia apenas para a requisição com datas formatadas para o Laravel
+    const apiParams = {
       ...filters,
       date_start: formatDateForApi(filters.date_start),
       date_end: formatDateForApi(filters.date_end),
     };
 
-    setActiveFilters(apiParams);
-    // Passamos false para 'showRefreshing' e os filtros no segundo parâmetro
     loadOrders(false, apiParams);
-    setIsFilterVisible(false); // Fecha o modal após aplicar
+    setIsFilterVisible(false);
   };
 
   // Renderização do Item atualizada
@@ -333,7 +334,9 @@ const OrdersScreen = () => {
               onPress={() => setIsFilterVisible(true)}
             >
               <FontAwesome name="filter" size={22} color="#1b0363ff" />
-              {hasActiveFilters(activeFilters) && <View style={styles.filterBadgeSmall} />}
+              {hasActiveFilters(activeFilters) && (
+                <View style={styles.filterBadgeSmall} />
+              )}
             </TouchableOpacity>
 
             {/* Segundo Botão (Ex: Logout ou Outro) */}
@@ -455,7 +458,7 @@ const styles = StyleSheet.create({
   errorStateButton: {
     minWidth: 120,
   },
-  
+
   headerTopRow: {
     flexDirection: "row",
     justifyContent: "space-between", // Empurra o título para a esquerda e botões para a direita

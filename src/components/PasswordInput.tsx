@@ -26,44 +26,58 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   return (
-    <View style={[styles.container, props.containerStyle]}>
-      <BaseInput
-        {...props}
-        secureTextEntry={!isPasswordVisible}
-        isFocused={isFocused}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        style={[props.style, showPasswordToggle && styles.inputWithToggle]} // ← Now this works!
-      />
+    <View style={[styles.mainContainer, props.containerStyle]}>
+      {/* O container interno isola o input e o ícone do Label */}
+      <View style={styles.inputWrapper}>
+        <BaseInput
+          {...props}
+          containerStyle={null} // Evita margens duplicadas se o BaseInput tiver estilo de container
+          secureTextEntry={!isPasswordVisible}
+          isFocused={isFocused}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          autoCapitalize="none" // Essencial para senhas
+          autoCorrect={false}
+          style={[props.style, showPasswordToggle && styles.inputWithToggle]}
+        />
 
-      {showPasswordToggle && (
-        <TouchableOpacity
-          style={styles.toggleButton}
-          onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-        >
-          {isPasswordVisible ? (
-            <EyeOffIcon width={20} height={20} color="#666" />
-          ) : (
-            <EyeIcon width={20} height={20} color="#666" />
-          )}
-        </TouchableOpacity>
-      )}
+        {showPasswordToggle && (
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            {isPasswordVisible ? (
+              <EyeOffIcon width={22} height={22} color={isFocused ? "#1b0363ff" : "#666"} />
+            ) : (
+              <EyeIcon width={22} height={22} color={isFocused ? "#1b0363ff" : "#666"} />
+            )}
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
+    marginBottom: 16,
+  },
+  inputWrapper: {
+    justifyContent: "center", // Centraliza o ícone verticalmente em relação ao input
     position: "relative",
   },
   toggleButton: {
     position: "absolute",
-    top: 40, // Adjust based on your label height
+    // Removido o top fixo. Agora ele se baseia no final do componente.
+    // Se o seu BaseInput tem label dentro, este valor deve ser ajustado
+    // mas o ideal é que o Label esteja fora do inputWrapper.
     right: 12,
-    padding: 4,
+    bottom: 29, // Alinha com o preenchimento inferior do BaseInput
+    zIndex: 10,
   },
   inputWithToggle: {
-    paddingRight: 50,
+    paddingRight: 45,
   },
 });
 

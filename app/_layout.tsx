@@ -28,7 +28,7 @@ function RootLayoutContent() {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#1b0363ff" />
+        <ActivityIndicator size="large" color="#1b0363" />
       </View>
     );
   }

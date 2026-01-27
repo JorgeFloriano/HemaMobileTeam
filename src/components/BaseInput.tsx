@@ -145,7 +145,6 @@ const BaseInput = forwardRef<BaseInputRef, BaseInputProps>(
             {required && <View style={styles.requiredDot} />}
             <Text style={styles.label}>
               {label}
-              {required}
             </Text>
           </View>
         )}

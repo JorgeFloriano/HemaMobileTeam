@@ -127,7 +127,7 @@ const BottomTabBar: React.FC = () => {
     return (
       <TouchableOpacity
         style={styles.tabButton}
-        onPress={() => router.push(tab.href as any)}
+        onPress={() => router.replace(tab.href as any)}
         activeOpacity={0.7}
       >
         <Ionicons

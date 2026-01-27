@@ -174,7 +174,7 @@ const TimeInput = forwardRef<TimeInputRef, TimeInputProps>((props, ref) => {
             placeholder={props.placeholder || "Selecionar hora"}
             maxLength={5}
             onChangeText={handleChangeText}
-            isFocused={isFocused}
+            isFocused={showPicker}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             keyboardType="numbers-and-punctuation"

@@ -427,7 +427,7 @@ const CreateOrderNoteScreen = () => {
     }
   };
 
-  const updateFormData = (field: keyof FormData, value: string) => {
+  const updateFormData = (field: keyof FormData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -766,6 +766,7 @@ const CreateOrderNoteScreen = () => {
               placeholder="Contato do cliente"
               maxLength={40}
             />
+            
           </View>
         )}
 

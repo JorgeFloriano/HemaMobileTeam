@@ -1,6 +1,6 @@
 // src/components/CheckboxInput.tsx
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 type CheckboxInputProps = {
   label: string;
@@ -24,7 +24,7 @@ const CheckboxInput: React.FC<CheckboxInputProps> = ({
             value ? styles.selectedCheckboxContainer : styles.checkboxContainer
           }
         >
-          {value && <FontAwesome6 name="check" size={15} color="#1b0363ff" />}
+          {value && <FontAwesome name="check" size={15} color="#1b0363ff" />}
         </View>
         <Text style={styles.label}>{label}</Text>
       </TouchableOpacity>

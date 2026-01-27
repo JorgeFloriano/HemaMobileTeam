@@ -44,12 +44,6 @@ const CreateOrderScreen = () => {
     client_id: "",
     sector: "",
     req_name: "",
-    // req_date: new Date().toLocaleDateString("pt-BR"),
-    // req_time: new Date().toLocaleTimeString("pt-BR", {
-    //   hour: "2-digit",
-    //   minute: "2-digit",
-    //   hour12: false,
-    // }),
     req_descr: "",
     equipment: "",
   });
@@ -137,6 +131,11 @@ const CreateOrderScreen = () => {
   }, []);
 
   const handleSubmit = async () => {
+    if (!formData.client_id) {
+      Alert.alert("Erro", "Por favor selecione um cliente");
+      return;
+    }
+    
     if (!formData.order_type_id) {
       Alert.alert("Erro", "Por favor selecione um tipo de serviço");
       return;
@@ -195,18 +194,12 @@ const CreateOrderScreen = () => {
       client_id: "",
       sector: "",
       req_name: "",
-      // req_date: new Date().toLocaleDateString("pt-BR"),
-      // req_time: new Date().toLocaleTimeString("pt-BR", {
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      //   hour12: false,
-      // }),
       req_descr: "",
       equipment: "",
     });
   };
 
-  const updateFormData = (field: keyof FormData, value: string) => {
+  const updateFormData = (field: keyof FormData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -247,28 +240,6 @@ const CreateOrderScreen = () => {
           maxLength={30}
           type="text"
         />
-
-        {/* <View style={styles.row}>
-              <View style={styles.halfInput}>
-                <TextInput
-                  label="Data do Acionamento *"
-                  value={formData.req_date}
-                  onChangeText={(text) => updateFormData("req_date", text)}
-                  placeholder="DD/MM/AAAA"
-                  type="date"
-                />
-              </View>
-
-              <View style={styles.halfInput}>
-                <TextInput
-                  label="Hora do Acionamento *"
-                  value={formData.req_time}
-                  onChangeText={(text) => updateFormData("req_time", text)}
-                  placeholder="HH:MM"
-                  type="time"
-                />
-              </View>
-            </View> */}
 
         <TextInput
           label="Descrição *"

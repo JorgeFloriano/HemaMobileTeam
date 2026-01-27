@@ -22,16 +22,16 @@ const KeyboardAvoidingContainer: React.FC<KeyboardAvoidingContainerProps> = ({
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0} // Adjust this value as needed
     >
-      <Pressable onPress={Keyboard.dismiss} style={styles.pressableContainer}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled" // Important for nested touchables
         >
+      <Pressable onPress={Keyboard.dismiss} style={styles.pressableContainer}>
           {children}
-        </ScrollView>
       </Pressable>
+        </ScrollView>
     </KeyboardAvoidingView>
   );
 };

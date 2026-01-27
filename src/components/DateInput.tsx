@@ -75,7 +75,7 @@ const DateInput = forwardRef<DateInputRef, DateInputProps>((props, ref) => {
         props.onChangeText(formattedValue);
       } else if (event.type === "dismissed") {
         // User pressed "Cancel" - clear the date
-        props.onChangeText("");
+        // props.onChangeText("");
       }
     } else {
       // For iOS: we'll handle with custom buttons
@@ -204,7 +204,7 @@ const DateInput = forwardRef<DateInputRef, DateInputProps>((props, ref) => {
             placeholder={props.placeholder || "Selecionar data"}
             maxLength={10}
             onChangeText={handleChangeText}
-            isFocused={isFocused}
+            isFocused={showPicker}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             keyboardType="numeric"
