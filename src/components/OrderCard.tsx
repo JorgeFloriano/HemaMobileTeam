@@ -22,7 +22,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
   const isEmergency = () => {
     const idStr = order.id;
     // É emergência se o ID bater com o que veio do Banco OU com o que veio da Notificação
-    return idStr === String(dbEmergencyId) || idStr === String(sessionEmergencyId);
+    return idStr === dbEmergencyId || idStr === sessionEmergencyId;
   };
 
   const getStatusColor = (finished: boolean) => {

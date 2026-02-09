@@ -87,7 +87,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           buttonText || (
             <MaterialCommunityIcons
               name="draw-pen"
-              size={31}
+              size={26}
               color="#1b0363ff"
             />
           )

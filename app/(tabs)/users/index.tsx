@@ -68,7 +68,7 @@ const UsersScreen = () => {
         "Falha ao carregar usuários";
 
       setError(errorMessage);
-      Alert.alert("Error", errorMessage);
+      Alert.alert("Erro", errorMessage);
     } finally {
       setLoading(false);
       setRefreshing(false);

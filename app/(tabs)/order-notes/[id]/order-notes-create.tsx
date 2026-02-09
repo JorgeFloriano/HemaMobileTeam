@@ -891,6 +891,7 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     alignItems: "flex-end",
+    //height: 64,
   },
 
   radioOption: {

@@ -24,10 +24,10 @@ import Button from "@/src/components/Button";
 const LoginScreen: React.FC = () => {
   const router = useRouter();
   const { login } = useAuth();
-  const [username, setUsername] = useState("alexandre.machado");
-  //const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("science123J@");
-  //const [password, setPassword] = useState("");
+  //const [username, setUsername] = useState("alexandre.machado");
+  const [username, setUsername] = useState("");
+  //const [password, setPassword] = useState("science123J@");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -137,7 +137,7 @@ const LoginScreen: React.FC = () => {
                   label="Usuário"
                   value={username}
                   onChangeText={setUsername}
-                  placeholder="Digite seu usuário"
+                  placeholder="Digite seu nome de usuário"
                   autoCapitalize="none" // Impede a primeira letra maiúscula
                   autoCorrect={false} // Desativa a correção ortográfica (o que você pediu)
                   keyboardType="email-address"
@@ -145,6 +145,7 @@ const LoginScreen: React.FC = () => {
 
                 <PasswordInput
                   label="Senha"
+                  placeholder="Digite sua senha"
                   value={password}
                   onChangeText={setPassword}
                   showPasswordToggle={true}
