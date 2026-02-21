@@ -47,7 +47,7 @@ export const authService = {
         data: error.response?.data,
         url: error.config?.url,
       });
-      
+
       // Specific error handling
       if (error.code === "NETWORK_ERROR") {
         throw new Error("Connection failed. Check your internet.");
@@ -76,8 +76,24 @@ export const authService = {
   },
 
   async getCurrentUser() {
-    const response = await api.get("/auth/user");
-    return response.data;
+    try {
+      // 1. Faz a chamada para a rota que já existe
+      const response = await api.get("/auth/user");
+
+      // 2. Pega o token atual para não perdê-lo ao salvar os novos dados
+      const token = await this.getToken();
+
+      if (response.data && token) {
+        // 3. Atualiza o storage local com os dados frescos do servidor
+        // Isso garante que os IDs e o onCallPermission estejam atualizados
+        await this.storeAuthData(token, response.data);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao sincronizar usuário no service:", error);
+      throw error;
+    }
   },
 
   async storeAuthData(token: string, user: any): Promise<void> {

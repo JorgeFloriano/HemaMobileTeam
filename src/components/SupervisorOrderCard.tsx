@@ -11,6 +11,7 @@ import {
 import { Order } from "@/app/(tabs)/order-notes";
 import { FontAwesome } from "@expo/vector-icons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Button from "@/src/components/Button";
 
 interface SupervisorOrderCardProps {
@@ -21,6 +22,7 @@ interface SupervisorOrderCardProps {
     orderId: number | string,
     tecId: number | string,
   ) => Promise<void>;
+  canUpdateTec: boolean;
 }
 
 const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
@@ -28,6 +30,7 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
   onPress,
   allTecs,
   onUpdateTec,
+  canUpdateTec,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -138,7 +141,8 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
             </Text>
           </View>
 
-          {!order.finished ? (
+          {/* BOTÃO DE ALTERAR TÉCNICO */}
+          {!order.finished && canUpdateTec ? (
             <Button
               variant="icon"
               // CORREÇÃO: Usando as props corretamente para garantir alinhamento
@@ -155,7 +159,14 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
               disabled={loading}
             />
           ) : (
-            <Text style={styles.detailValue}>FINALIZADA</Text>
+            //LABEL CASO A SAT TENHA SIDO FINALIZADA
+            <Text style={styles.detailValue}>
+              {order.finished ? (
+                "FINALIZADA"
+              ) : (
+                <MaterialIcons name="block-flipped" size={24} color="red" />
+              )}
+            </Text>
           )}
         </View>
       </View>

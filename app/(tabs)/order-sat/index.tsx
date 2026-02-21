@@ -121,6 +121,11 @@ const OrdersScreen = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [activeFilters, setActiveFilters] =
     useState<FilterState>(initialFilterState);
+  // Adicione estados para as novas permissões que precisar
+  const [permissions, setPermissions] = useState({
+    attach_tec: false,
+    sats: false, // Exemplo de outra permissão
+  });
 
   // Função para fazer logout
   const performLogout = async () => {
@@ -168,6 +173,23 @@ const OrdersScreen = () => {
     }
   };
 
+  const checkPermissions = async () => {
+    try {
+      const response = await api.get("/user-permissions", {
+        params: {
+          // Passando como string separada por vírgula é mais fácil para o Axios
+          names: "attach_tec,sats",
+          level: 2,
+        },
+      });
+
+      // A resposta será algo como: { attach_tec: true, reopen_sat: false }
+      setPermissions(response.data);
+    } catch (error) {
+      console.error("Erro ao checar permissões em lote:", error);
+    }
+  };
+
   // Função para atualizar o técnico da ordem (API Call)
   const handleUpdateOrderTec = async (
     orderId: number | string,
@@ -205,7 +227,12 @@ const OrdersScreen = () => {
   // Ajuste no loadOrders para carregar técnicos também
   const loadInitialData = async () => {
     setLoading(true);
-    await Promise.all([loadOrders(), loadTecs(), loadClients()]);
+    await Promise.all([
+      loadOrders(),
+      loadTecs(),
+      loadClients(),
+      checkPermissions(),
+    ]);
     setLoading(false);
   };
 
@@ -277,6 +304,7 @@ const OrdersScreen = () => {
       onPress={() => handleOrderPress(item)}
       onUpdateTec={handleUpdateOrderTec} // Passa a função de API
       allTecs={tecs} // Passa a lista de técnicos carregada
+      canUpdateTec={permissions.attach_tec} // Passa a permissão de anexar técnico
     />
   );
 
@@ -340,12 +368,14 @@ const OrdersScreen = () => {
             </TouchableOpacity>
 
             {/* Segundo Botão (Ex: Logout ou Outro) */}
-            <TouchableOpacity
-              style={[styles.headerIconButton, { marginLeft: 12 }]}
-              onPress={() => handleCreateOrder()}
-            >
-              <FontAwesome name="plus" size={22} color="#1b0363ff" />
-            </TouchableOpacity>
+            {permissions.sats && (
+              <TouchableOpacity
+                style={[styles.headerIconButton, { marginLeft: 12 }]}
+                onPress={() => handleCreateOrder()}
+              >
+                <FontAwesome name="plus" size={22} color="#1b0363ff" />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 

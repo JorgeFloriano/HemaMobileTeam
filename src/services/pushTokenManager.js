@@ -6,8 +6,8 @@ import axios from "axios"; // ← Usar axios diretamente, não api.js
 
 const TOKEN_STORAGE_KEY = "@expo_push_token";
 const TOKEN_SENT_KEY = "@expo_token_sent";
-const API_BASE_URL = "http://192.168.0.113:8000/api"; // Mesma URL do api.js
-//const API_BASE_URL = "https://hema.jldev.app.br/api"; // Mesma URL do api.js
+const API_BASE_URL = "http://192.168.0.110:8000/api"; // Mesma URL do api.js
+//const API_BASE_URL = "https://hematest.jldev.app.br/api"; // Mesma URL do api.js
 
 class PushTokenManager {
   /**

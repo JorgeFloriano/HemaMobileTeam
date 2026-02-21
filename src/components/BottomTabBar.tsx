@@ -1,5 +1,5 @@
 // src/components/BottomTabBar.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,13 +22,18 @@ interface Tab {
   label: string;
   showForTec?: boolean; // Property to control visibility
   showForSup?: boolean;
+  permissionName?: string;
 }
 
 const BottomTabBar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, refreshUserData } = useAuth();
+
+  useEffect(() => {
+    refreshUserData(); // Executa a sincronização com o Laravel
+  }, [pathname, refreshUserData]);
 
   const baseTabs: Tab[] = [
     {
@@ -36,42 +41,41 @@ const BottomTabBar: React.FC = () => {
       href: "/order-notes",
       icon: "list-outline",
       label: "Programação",
-      showForTec: true, // Only show for tecnician users
+      showForTec: true,
     },
     {
       name: "order-sat",
       href: "/order-sat",
       icon: "list",
       label: "SATs",
-      showForSup: true, // Only show for supervisor users
+      showForSup: true,
     },
     {
-      name: "on-call",
+      name: "on-call", // Usaremos este name para a validação especial
       href: "/on-call",
       icon: "notifications-outline",
       label: "Sobreaviso",
-      showForSup: true, // Only show for supervisor users
     },
   ];
 
   // Filter tabs based on user role
   const tabs = baseTabs.filter((tab) => {
-    let shouldShow = false;
-
-    if (tab.showForTec && user?.tecId) {
-      shouldShow = true;
+    // 1. Se for a aba de sobreaviso, manda quem tem o booleano true
+    if (tab.name === "on-call") {
+      return user?.onCallPermission === true;
     }
 
-    if (tab.showForSup && user?.supId) {
-      shouldShow = true;
-    }
+    // 2. Se o usuário for Técnico e a aba for showForTec
+    if (tab.showForTec && user?.tecId) return true;
 
-    // Se a aba não tiver restrição de papel, mostramos sempre
-    if (!tab.showForTec && !tab.showForSup) {
-      shouldShow = true;
-    }
+    // 3. Se o usuário for Supervisor e a aba for showForSup
+    if (tab.showForSup && user?.supId) return true;
 
-    return shouldShow;
+    // 4. Fallback para abas sem restrição
+    if (tab.showForTec === undefined && tab.showForSup === undefined)
+      return true;
+
+    return false;
   });
 
   // Find active tab index
@@ -101,7 +105,7 @@ const BottomTabBar: React.FC = () => {
     const translateX = interpolate(
       borderPosition.value,
       [0, tabs.length - 1],
-      [0, (tabs.length - 1) * tabWidth]
+      [0, (tabs.length - 1) * tabWidth],
     );
 
     return {

@@ -1,6 +1,6 @@
 // src/contexts/AuthContext.tsx
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authService } from '@/src/services/auth';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { authService } from "@/src/services/auth";
 
 interface User {
   id: string;
@@ -11,6 +11,7 @@ interface User {
   function?: string;
   supId?: string | null;
   tecId?: string | null;
+  onCallPermission?: boolean;
 }
 
 interface AuthContextType {
@@ -19,11 +20,14 @@ interface AuthContextType {
   isLoading: boolean; // Add loading state
   login: (token: string, userData: User) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true); // Start with loading true
@@ -44,13 +48,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
       }
     } catch (error) {
-      console.error('Auth status check error:', error);
+      console.error("Auth status check error:", error);
       setIsAuthenticated(false);
       setUser(null);
     } finally {
       setIsLoading(false); // Always set loading to false when done
     }
   };
+
+  // 2. Use o useCallback para evitar re-renderizações infinitas
+  const refreshUserData = React.useCallback(async () => {
+    try {
+      const updatedUser = await authService.getCurrentUser();
+      if (updatedUser) {
+        setUser(updatedUser);
+      }
+    } catch (error) {
+      console.error("Falha na sincronização em tempo real:", error);
+    }
+  }, []);
 
   const login = async (token: string, userData: User) => {
     await authService.storeAuthData(token, userData);
@@ -69,20 +85,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     isLoading, // Provide loading state
     login,
-    logout
+    logout,
+    refreshUserData,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('Usuário autenticado deve ser usado dentro de um AuthProvider');
+    throw new Error(
+      "Usuário autenticado deve ser usado dentro de um AuthProvider",
+    );
   }
   return context;
 };
