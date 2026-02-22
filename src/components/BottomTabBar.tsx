@@ -69,7 +69,7 @@ const BottomTabBar: React.FC = () => {
     if (tab.showForTec && user?.tecId) return true;
 
     // 3. Se o usuário for Supervisor e a aba for showForSup
-    if (tab.showForSup && user?.supId) return true;
+    if (tab.showForSup && user?.isSup) return true;
 
     // 4. Fallback para abas sem restrição
     if (tab.showForTec === undefined && tab.showForSup === undefined)

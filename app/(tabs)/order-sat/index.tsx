@@ -1,4 +1,5 @@
 // app/(tabs)/order-sat/index.tsx
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -16,7 +17,9 @@ import SupervisorOrderCard from "@/src/components/SupervisorOrderCard";
 import Button from "@/src/components/Button";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { FontAwesome } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import OrdersFilterModal from "@/src/components/OrdersFilterModal";
+import SearchInput from "@/src/components/SearchInput";
 
 // Types
 export interface Order {
@@ -121,10 +124,12 @@ const OrdersScreen = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [activeFilters, setActiveFilters] =
     useState<FilterState>(initialFilterState);
+  const [searchId, setSearchId] = useState("");
+
   // Adicione estados para as novas permissões que precisar
   const [permissions, setPermissions] = useState({
     attach_tec: false,
-    sats: false, // Exemplo de outra permissão
+    sats: false,
   });
 
   // Função para fazer logout
@@ -135,7 +140,7 @@ const OrdersScreen = () => {
 
   // Navigate to create order
   const handleCreateOrder = () => {
-    if (!user?.supId) {
+    if (!user?.isSup) {
       Alert.alert(
         "Acesso negado",
         "Sem permissão para criar solicitações de assistência técnica.",
@@ -143,6 +148,40 @@ const OrdersScreen = () => {
       return router.push("/(tabs)/order-sat");
     }
     router.push("/(tabs)/order-sat/order-create");
+  };
+
+  const handleSearch = async () => {
+    // Impede busca vazia ou se já estiver carregando
+    if (!searchId || refreshing) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Mudança para POST enviando o searchId no corpo (body)
+      const response = await api.post<OrdersResponse>("/sat/orders/search", {
+        search: searchId, // Corresponde ao 'search' no validated do Laravel
+      });
+
+      if (response.data.orders) {
+        setOrders(response.data.orders);
+
+        if (response.data.orders.length === 0) {
+          Alert.alert("Busca", "Nenhuma SAT encontrada com este número.");
+          loadOrders(true);
+        } else {
+          setSearchId(""); // Limpa o texto do campo de busca
+        }
+      }
+    } catch (err: any) {
+      console.error("Erro na busca:", err);
+
+      // Trata erro de validação (ex: número muito grande ou não numérico)
+      const msg = err.response?.data?.message || "Erro ao realizar a busca.";
+      Alert.alert("Erro de Busca", msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Função para carregar técnicos (allTecs)
@@ -182,6 +221,8 @@ const OrdersScreen = () => {
           level: 2,
         },
       });
+
+      console.log("DEBUG API PERMISSIONS:", response.data);
 
       // A resposta será algo como: { attach_tec: true, reopen_sat: false }
       setPermissions(response.data);
@@ -226,6 +267,7 @@ const OrdersScreen = () => {
 
   // Ajuste no loadOrders para carregar técnicos também
   const loadInitialData = async () => {
+    setSearchId(""); // Limpa o texto do campo de busca
     setLoading(true);
     await Promise.all([
       loadOrders(),
@@ -273,7 +315,7 @@ const OrdersScreen = () => {
 
   // Pull to refresh
   const handleRefresh = () => {
-    loadOrders(true);
+    loadOrders(true); // Recarrega a lista completa (sem os params de busca)
   };
 
   // Função para converter data DD/MM/YYYY para YYYY-MM-DD (Laravel format)
@@ -285,6 +327,7 @@ const OrdersScreen = () => {
   const handleApplyFilters = (filters: FilterState) => {
     // 1. Salva os filtros no estado local (com data DD/MM/YYYY para o Modal ler depois)
     setActiveFilters(filters);
+    setSearchId(""); // Limpa o texto do campo de busca
 
     // 2. Cria uma cópia apenas para a requisição com datas formatadas para o Laravel
     const apiParams = {
@@ -356,6 +399,15 @@ const OrdersScreen = () => {
           <Text style={styles.welcome}>SATs</Text>
 
           <View style={styles.headerButtons}>
+            {/* Botão de Busca */}
+            <SearchInput
+              value={searchId}
+              onChangeText={setSearchId}
+              onSearch={handleSearch}
+              containerStyle={{ width: 150 }}
+              loading={loading}
+            />
+
             {/* Botão de Filtro */}
             <TouchableOpacity
               style={styles.headerIconButton}
@@ -370,10 +422,14 @@ const OrdersScreen = () => {
             {/* Segundo Botão (Ex: Logout ou Outro) */}
             {permissions.sats && (
               <TouchableOpacity
-                style={[styles.headerIconButton, { marginLeft: 12 }]}
+                style={styles.headerIconButton}
                 onPress={() => handleCreateOrder()}
               >
-                <FontAwesome name="plus" size={22} color="#1b0363ff" />
+                <MaterialCommunityIcons
+                  name="file-document-plus-outline"
+                  size={24}
+                  color="#1b0363ff"
+                />
               </TouchableOpacity>
             )}
           </View>
@@ -429,7 +485,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   header: {
-    paddingVertical: 16,
+    paddingVertical: 24,
     backgroundColor: "#f5f5f5",
     justifyContent: "space-between",
   },
@@ -493,11 +549,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between", // Empurra o título para a esquerda e botões para a direita
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 20,
   },
   headerButtons: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 10,
   },
   headerIconButton: {
     width: 44,

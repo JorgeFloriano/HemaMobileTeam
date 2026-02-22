@@ -71,13 +71,13 @@ const LoginScreen: React.FC = () => {
         name: string;
         email?: string | undefined;
         tecId?: string | undefined;
-        supId?: string | undefined;
+        isSup?: boolean;
       } = response.user;
 
       if (userData.tecId) {
         // Se for técnico (independente de ser supervisor também)
         router.replace("/(tabs)/order-notes");
-      } else if (userData.supId) {
+      } else if (userData.isSup) {
         // Se não for técnico, mas for supervisor
         router.replace("/(tabs)/order-sat");
       } else {

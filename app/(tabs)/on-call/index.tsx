@@ -37,10 +37,10 @@ const OnCallScreen = () => {
     router.replace("/login");
   };
 
-  // Se não tem usuário, manda para o login, ou use useEffect para carregar os dados iniciais
+  // Se não tiver permissão, vai para a home
   useEffect(() => {
-    if (!user || !user.id || !user.supId) {
-      performLogout();
+    if (!user?.onCallPermission) {
+      router.replace("/(tabs)");
       return;
     }
     loadInitialData();
@@ -55,6 +55,17 @@ const OnCallScreen = () => {
       return;
     }
     Alert.alert("Erro", errorMessage);
+  };
+
+  const toggleAllClients = () => {
+    // Se o número de selecionados for igual ao total de clientes, desmarcamos todos
+    if (tempSelectedIds.length === clients.length) {
+      setTempSelectedIds([]);
+    } else {
+      // Caso contrário, selecionamos todos os IDs disponíveis
+      const allIds = clients.map((c: any) => c.id);
+      setTempSelectedIds(allIds);
+    }
   };
 
   const loadInitialData = async () => {
@@ -97,7 +108,7 @@ const OnCallScreen = () => {
     setTempSelectedIds((prev) =>
       prev.includes(clientId)
         ? prev.filter((id) => id !== clientId)
-        : [...prev, clientId]
+        : [...prev, clientId],
     );
   };
 
@@ -174,9 +185,36 @@ const OnCallScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitleText}>{selectedTec?.user.name}</Text>
-                <Text style={styles.modalSub}>Gerenciar clientes vinculados</Text>
+              <View style={{ flex: 1 }}>
+                {/* flex: 1 para não empurrar o 'X' */}
+                <Text style={styles.modalTitleText}>
+                  {selectedTec?.user.name}
+                </Text>
+                <Text style={styles.modalSub}>
+                  Gerenciar clientes vinculados
+                </Text>
+                <Button
+                  title={
+                    tempSelectedIds.length === clients.length
+                      ? "Desmarcar todos"
+                      : "Selecionar todos"
+                  }
+                  icon={
+                    <FontAwesome
+                      name={
+                        tempSelectedIds.length === clients.length
+                          ? "square-o"
+                          : "check-square-o"
+                      }
+                      size={18}
+                      color="#1b0363ff"
+                    />
+                  }
+                  onPress={toggleAllClients}
+                  variant="secondary"
+                  style={styles.toggleAllBtn}
+                  textStyle={{ fontSize: 13 }}
+                />
               </View>
               <TouchableOpacity
                 style={styles.closeButton}
@@ -260,7 +298,7 @@ const styles = StyleSheet.create({
     fontSize: 29,
     color: "#6b7280",
   },
- 
+
   modalList: { paddingHorizontal: 16, paddingTop: 5 },
   modalFooter: {
     justifyContent: "flex-end",
@@ -288,6 +326,14 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 16,
     color: "#666",
+  },
+  toggleAllBtn: {
+    marginTop: 10,
+    paddingVertical: 6, // Mais fino que o botão padrão
+    paddingHorizontal: 12,
+    alignSelf: "flex-start", // Não ocupa a largura toda
+    height: "auto",
+    minHeight: 35,
   },
 });
 

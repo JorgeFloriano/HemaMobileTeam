@@ -9,7 +9,7 @@ interface User {
   surname?: string;
   email?: string;
   function?: string;
-  supId?: string | null;
+  isSup?: boolean;
   tecId?: string | null;
   onCallPermission?: boolean;
 }

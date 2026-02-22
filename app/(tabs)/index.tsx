@@ -50,7 +50,7 @@ export default function Index() {
         } finally {
           setIsCheckingEmergency(false);
         }
-      } else if (user.supId !== null) {
+      } else if (user.isSup !== null) {
         router.replace("/order-sat");
       } else {
         router.replace("/login");

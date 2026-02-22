@@ -12,6 +12,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import api from "@/src/services/api";
 import Button from "@/src/components/Button";
 import { Order } from "@/app/(tabs)/order-notes";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 const OrderDetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -19,6 +20,11 @@ const OrderDetailScreen = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Adicione estados para as novas permissões que precisar
+  const [permissions, setPermissions] = useState({
+    reopen_sat: false,
+  });
 
   // Load order details
   const loadOrder = async (showRefreshing = false) => {
@@ -28,9 +34,7 @@ const OrderDetailScreen = () => {
       } else {
         setLoading(true);
       }
-      const response = await api.get<{ order: Order }>(
-        `/notes/show/${id}`
-      );
+      const response = await api.get<{ order: Order }>(`/notes/show/${id}`);
       setOrder(response.data.order);
       console.log("Order loaded:", response.data.order);
     } catch (error: any) {
@@ -48,15 +52,56 @@ const OrderDetailScreen = () => {
     }
   }; // Add dependencies that loadOrder uses
 
+  const checkPermissions = async () => {
+    try {
+      const response = await api.get("/user-permissions", {
+        params: {
+          // Passando como string separada por vírgula é mais fácil para o Axios
+          names: "reopen_sat",
+          level: 2,
+        },
+      });
+
+      console.log("DEBUG API PERMISSIONS:", response.data);
+
+      // A resposta será algo como: { attach_tec: true, reopen_sat: false }
+      setPermissions(response.data);
+    } catch (error) {
+      console.error("Erro ao checar permissões em lote:", error);
+    }
+  };
+
+  const loadInitialData = async () => {
+    setLoading(true);
+    await Promise.all([loadOrder(), checkPermissions()]);
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (id) {
-      loadOrder();
+      loadInitialData();
     }
   }, [id]); // Now include loadOrder in dependencies
+
 
   // Handle refresh
   const handleRefresh = () => {
     loadOrder(true);
+  };
+
+  const handleReopen = async () => {
+    try {
+      const response = await api.put(`/sat/orders/${id}/reopen`);
+      if (response.data.success) {
+        Alert.alert("Sucesso", response.data.message);
+        loadOrder();
+      } else {
+        Alert.alert("Erro", response.data.message || "Falha ao reabrir a SAT");
+      }
+    } catch (error: any) {
+      Alert.alert("Erro", "Não foi possível reabrir a SAT");
+      console.error("Error re-opening SAT:", error);
+    }
   };
 
   const formatDate = (date: string) => {
@@ -134,6 +179,7 @@ const OrderDetailScreen = () => {
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.serviceNumber}>SAT Nº {order.id}</Text>
+
             <View
               style={[
                 styles.statusBadge,
@@ -144,6 +190,24 @@ const OrderDetailScreen = () => {
                 {statusInfo.text}
               </Text>
             </View>
+
+            {!!order?.finished && permissions?.reopen_sat && (
+              <Button
+                variant="icon"
+                // CORREÇÃO: Usando as props corretamente para garantir alinhamento
+                icon={
+                  <FontAwesome6
+                    name="arrows-rotate"
+                    size={12}
+                    color="#1b0363ff"
+                  />
+                }
+                title={loading ? "..." : "Reabrir"}
+                textStyle={styles.reopenBtnText}
+                onPress={() => handleReopen()}
+                disabled={loading}
+              />
+            )}
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Cliente:</Text>
@@ -314,6 +378,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 8,
+    gap: 8,
   },
   serviceNumber: {
     fontSize: 20,
@@ -326,6 +391,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
+    verticalAlign: "middle",
+    height: 34,
   },
   intervValue: {
     fontSize: 14,
@@ -428,6 +495,11 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     flex: 1,
     textAlign: "right",
+  },
+  reopenBtnText: {
+    color: "#1b0363ff",
+    fontSize: 14,
+    fontWeight: "700",
   },
 });
 
