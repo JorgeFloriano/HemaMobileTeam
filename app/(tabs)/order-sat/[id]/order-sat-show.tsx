@@ -13,6 +13,9 @@ import api from "@/src/services/api";
 import Button from "@/src/components/Button";
 import { Order } from "@/app/(tabs)/order-notes";
 import { FontAwesome6 } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Adicione o import
 
 const OrderDetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -20,10 +23,12 @@ const OrderDetailScreen = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // Adicione estados para as novas permissões que precisar
   const [permissions, setPermissions] = useState({
     reopen_sat: false,
+    sats: false,
   });
 
   // Load order details
@@ -57,7 +62,7 @@ const OrderDetailScreen = () => {
       const response = await api.get("/user-permissions", {
         params: {
           // Passando como string separada por vírgula é mais fácil para o Axios
-          names: "reopen_sat",
+          names: "reopen_sat,sats",
           level: 2,
         },
       });
@@ -68,6 +73,77 @@ const OrderDetailScreen = () => {
       setPermissions(response.data);
     } catch (error) {
       console.error("Erro ao checar permissões em lote:", error);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      setDownloading(true);
+
+      // 1. Busque o token exatamente como o seu interceptor faz
+      const token = await AsyncStorage.getItem("authToken");
+
+      if (!token) {
+        Alert.alert(
+          "Erro",
+          "Sessão expirada. Por favor, faça login novamente.",
+        );
+        return;
+      }
+
+      const filename = `SAT_${id}.pdf`;
+      const fileUri = FileSystem.cacheDirectory + filename;
+
+      // 1. Inicia o download do arquivo binário
+      // O downloadResumable lida melhor com o fluxo de dados da API
+      const downloadInstance = FileSystem.createDownloadResumable(
+        `${api.defaults.baseURL}/sat/orders/${id}/download`,
+        fileUri,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Injeta o token aqui
+            Accept: "application/pdf",
+          },
+        },
+      );
+
+      const result = await downloadInstance.downloadAsync();
+
+      if (result && result.status === 200) {
+        // 2. Abre o menu de compartilhamento do celular para abrir o PDF
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(result.uri, {
+            mimeType: "application/pdf",
+            dialogTitle: `Abrir Relatório SAT ${id}`,
+            UTI: "com.adobe.pdf", // Para compatibilidade com iOS
+          });
+        } else {
+          Alert.alert(
+            "Sucesso",
+            "O arquivo foi baixado, mas o compartilhamento não está disponível.",
+          );
+        }
+      } else if (result && result.status === 403) {
+        Alert.alert(
+          "Aviso",
+          "Esta SAT ainda não possui permissão para download ou não está finalizada.",
+        );
+      } else {
+        // Adicione isso para ver o código de erro real (ex: 500, 404, 401)
+        Alert.alert(
+          "Erro",
+          `Não foi possível baixar o arquivo. Status: ${result?.status}`,
+        );
+        console.log("Resultado completo do download:", result);
+      }
+    } catch (error) {
+      console.error("Erro no download:", error);
+      Alert.alert(
+        "Erro",
+        "Ocorreu uma falha ao processar o download do relatório.",
+      );
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -82,7 +158,6 @@ const OrderDetailScreen = () => {
       loadInitialData();
     }
   }, [id]); // Now include loadOrder in dependencies
-
 
   // Handle refresh
   const handleRefresh = () => {
@@ -102,6 +177,46 @@ const OrderDetailScreen = () => {
       Alert.alert("Erro", "Não foi possível reabrir a SAT");
       console.error("Error re-opening SAT:", error);
     }
+  };
+
+  const handleDelete = async () => {
+    // Abrir o alerta de confirmação antes de qualquer lógica
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Após deletada, todas as informações da sat serão perdidas, tem certeza que deseja prosseguir?",
+      [
+        // Botão para cancelar
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        // Botão para confirmar a exclusão
+        {
+          text: "Excluir",
+          style: "destructive", // No iOS fica vermelho
+          onPress: async () => {
+            try {
+              // Note que mudei de .put para .delete para seguir o padrão REST do seu Controller destroy
+              // Mas se no seu routes/api.php estiver como PUT, mantenha api.put
+              const response = await api.delete(`/sat/orders/${id}/delete`);
+
+              if (response.data.success) {
+                Alert.alert("Sucesso", response.data.message);
+                router.back();
+              } else {
+                Alert.alert(
+                  "Erro",
+                  response.data.message || "Falha ao deletar a SAT",
+                );
+              }
+            } catch (error: any) {
+              Alert.alert("Erro", "Não foi possível deletar a SAT");
+              console.error("Error deleting SAT:", error);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const formatDate = (date: string) => {
@@ -190,6 +305,39 @@ const OrderDetailScreen = () => {
                 {statusInfo.text}
               </Text>
             </View>
+          </View>
+
+          <View style={styles.headerTop}>
+            {!order?.finished &&
+              permissions?.sats &&
+              order?.notes?.length === 0 && (
+                <Button
+                  variant="icon"
+                  // CORREÇÃO: Usando as props corretamente para garantir alinhamento
+                  icon={<FontAwesome6 name="trash-can" size={12} color="red" />}
+                  title={loading ? "..." : "Excluir"}
+                  textStyle={styles.deleteBtnText}
+                  onPress={() => handleDelete()}
+                  disabled={loading}
+                />
+              )}
+
+            {!!order?.finished && (
+              <Button
+                variant="icon"
+                icon={
+                  downloading ? (
+                    <ActivityIndicator size={12} color="#1b0363ff" />
+                  ) : (
+                    <FontAwesome6 name="download" size={12} color="#1b0363ff" />
+                  )
+                }
+                title={downloading ? "Gerando..." : "Download"}
+                textStyle={styles.reopenBtnText}
+                onPress={() => handleDownload()}
+                disabled={loading}
+              />
+            )}
 
             {!!order?.finished && permissions?.reopen_sat && (
               <Button
@@ -209,6 +357,7 @@ const OrderDetailScreen = () => {
               />
             )}
           </View>
+
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Cliente:</Text>
             <Text style={styles.detailValue}>{order.client.name}</Text>
@@ -498,6 +647,11 @@ const styles = StyleSheet.create({
   },
   reopenBtnText: {
     color: "#1b0363ff",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  deleteBtnText: {
+    color: "red",
     fontSize: 14,
     fontWeight: "700",
   },

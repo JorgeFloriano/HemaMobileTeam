@@ -24,6 +24,9 @@ import MaterialSelector, {
 } from "@/src/components/MaterialSelector";
 import SignaturePad from "@/src/components/SignaturePad";
 import KeyboardAvoindingContainer from "@/src/components/KeyboardAvoidingContainer";
+import ImagePickerInput, {
+  ImagePickerInputRef,
+} from "@/src/components/ImagePickerInput";
 
 interface Type {
   id: string;
@@ -148,6 +151,8 @@ const CreateOrderNoteScreen = () => {
   const materialSelectorRef = useRef<MaterialSelectorRef>(null);
   const [showClientFields, setShowClientFields] = useState(false);
   const [isVerifying, setIsVerifying] = useState(true);
+  const [images, setImages] = useState<any[]>([]);
+  const imagePickerRef = useRef<ImagePickerInputRef>(null);
   const [formData, setFormData] = useState<FormData>({
     order_id: Array.isArray(id) ? id[0] : id || "",
     equip_mod: "",
@@ -233,7 +238,7 @@ const CreateOrderNoteScreen = () => {
         setMaterials(response.data.materials);
 
         console.log(
-          `✅ Loaded data: ${response.data.types.length} types, ${response.data.tecs.length} techs, etc.`
+          `✅ Loaded data: ${response.data.types.length} types, ${response.data.tecs.length} techs, etc.`,
         );
       } else {
         throw new Error("Failed to load note creation data");
@@ -277,7 +282,7 @@ const CreateOrderNoteScreen = () => {
           Alert.alert(
             "SAT atribuída à outro técnico",
             "Outro técnico ou já iniciou o atendimento desta emergência ou SAT foi atribuída a ele por um supervisor.",
-            [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+            [{ text: "OK", onPress: () => router.replace("/(tabs)") }],
           );
         } else {
           console.error("Erro na verificação:", error);
@@ -287,7 +292,7 @@ const CreateOrderNoteScreen = () => {
 
         console.error(
           "Não foi possível parar os alertas e atribuir a ordem para o técnico logado",
-          error
+          error,
         );
       }
     };
@@ -349,6 +354,7 @@ const CreateOrderNoteScreen = () => {
     const isStartTimeValid = startTimeRef.current?.validate();
     const isEndTimeValid = endTimeRef.current?.validate();
     const isFirstTecValid = firstTecRef.current?.validate();
+    const isImagesValid = imagePickerRef.current?.validate();
 
     if (
       !isStartTimeValid ||
@@ -366,7 +372,7 @@ const CreateOrderNoteScreen = () => {
     ) {
       Alert.alert(
         "Erro",
-        "Provavelmente alguns campos obrigatórios (com detalhes em vermelho) não foram preenchidos corretamente, por favor verifique e tente novamente!"
+        "Provavelmente alguns campos obrigatórios (com detalhes em vermelho) não foram preenchidos corretamente, por favor verifique e tente novamente!",
       );
       return;
     }
@@ -382,46 +388,55 @@ const CreateOrderNoteScreen = () => {
       return;
     }
 
-    // Prepare data for API - signatures are already base64 strings
-    const submitData = {
-      ...formData,
-      // The signature fields are already base64 strings, ready for Laravel
-    };
-
     setLoading(true);
     Keyboard.dismiss();
 
     try {
-      const response = await api.post("/notes", submitData);
+      const data = new FormData();
+
+      // 1. Campos de texto simples
+      // Usamos 'fd' para não confundir com o estado 'formData'
+      Object.keys(formData).forEach((key) => {
+        if (key !== "materials") {
+          const value = formData[key as keyof FormData];
+          // Garantimos que não enviamos valores nulos/undefined como string "null"
+          if (value !== null && value !== undefined) {
+            data.append(key, String(value));
+          }
+        }
+      });
+
+      // 2. Materiais como JSON String
+      data.append("materials", JSON.stringify(formData.materials));
+
+      // 3. Files
+      images.forEach((img, index) => {
+        data.append("files[]", {
+          uri: img.uri,
+          // Usa o nome original do arquivo ou gera um baseado na extensão real
+          name: img.name || `file_${index}.${img.uri.split(".").pop()}`,
+          // Usa o mimeType do seletor, ou tenta adivinhar pelo nome, ou usa o genérico
+          type: img.mimeType || img.type || "application/octet-stream",
+        } as any);
+      });
+
+      console.log("🚀 Enviando Nota com Imagens...");
+
+      const response = await api.post("/notes", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json", // Força o Laravel a retornar erros em JSON
+        },
+      });
 
       if (response.data.success) {
-        Alert.alert("Sucesso", response.data.message, [
-          {
-            text: "OK",
-            onPress: () => {
-              router.push("/");
-            },
-          },
+        Alert.alert("Sucesso", "Atendimento registrado!", [
+          { text: "OK", onPress: () => router.push("/") },
         ]);
-      } else {
-        Alert.alert(
-          "Erro",
-          response.data.message || "Falha ao criar atendimento"
-        );
       }
     } catch (error: any) {
-      console.error("Error creating note:", error);
-
-      if (error.response?.data?.errors) {
-        const errors = error.response.data.errors;
-        const firstError = Object.values(errors)[0] as string[];
-        Alert.alert("Erro", firstError[0]);
-      } else {
-        Alert.alert(
-          "Erro",
-          error.response?.data?.message || "Falha ao criar atendimento"
-        );
-      }
+      console.error("Erro ao salvar:", error);
+      Alert.alert("Erro", "Falha ao salvar atendimento.");
     } finally {
       setLoading(false);
     }
@@ -591,6 +606,15 @@ const CreateOrderNoteScreen = () => {
           materials={materials as Material[]}
           placeholder="Selecionar Material"
           onMaterialsChange={handleMaterialsChange}
+        />
+
+        <ImagePickerInput
+          ref={imagePickerRef}
+          label="Fotos da Assistência"
+          images={images}
+          setImages={setImages}
+          maxImages={9}
+          required={false}
         />
 
         {/* Services Description */}
@@ -766,7 +790,6 @@ const CreateOrderNoteScreen = () => {
               placeholder="Contato do cliente"
               maxLength={40}
             />
-            
           </View>
         )}
 

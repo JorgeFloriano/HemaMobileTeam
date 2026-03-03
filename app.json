@@ -4,7 +4,7 @@
     "slug": "HemaMobileTeam",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo_hema.png",
+    "icon": "./assets/images/logo_icon.png",
     "scheme": "hemamobile",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -19,6 +19,11 @@
       "bundleIdentifier": "com.jldev.hema.team"
     },
     "android": {
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "CAMERA"
+      ],
       "package": "com.jldev.hema.team",
       "googleServicesFile": "./google-services.json",
       "userInterfaceStyle": "light",
