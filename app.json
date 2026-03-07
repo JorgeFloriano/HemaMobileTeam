@@ -2,7 +2,7 @@
   "expo": {
     "name": "Hema Team",
     "slug": "HemaMobileTeam",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/logo_icon.png",
     "scheme": "hemamobile",
@@ -25,6 +25,7 @@
         "CAMERA"
       ],
       "package": "com.jldev.hema.team",
+      //"versionCode": 4,
       "googleServicesFile": "./google-services.json",
       "userInterfaceStyle": "light",
       "adaptiveIcon": {
