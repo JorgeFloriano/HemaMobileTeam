@@ -13,6 +13,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Button from "@/src/components/Button";
+import StatusBadge from "./StatusBadge";
 
 interface SupervisorOrderCardProps {
   order: Order;
@@ -49,16 +50,6 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
     }
   };
 
-  const getStatusColor = (finished: boolean) => {
-    if (finished) return "#4CAF50";
-    return "#FF9800"; // Laranja
-  };
-
-  const getStatusText = (finished: boolean) => {
-    if (finished) return "F";
-    return "P";
-  };
-
   // ... restante das suas funções formatDate e formatDateTime
   const formatDate = (date: string) => {
     const [year, month, day] = date.split("-");
@@ -88,14 +79,10 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
           {order.id} - {order.client.name}
         </Text>
 
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: getStatusColor(order.finished) },
-          ]}
-        >
-          <Text style={styles.statusText}>{getStatusText(order.finished)}</Text>
-        </View>
+        <StatusBadge 
+          finished={order.finished} 
+          isEmergency={order.is_emergency} 
+        />
       </View>
 
       <Text style={styles.description} numberOfLines={2}>

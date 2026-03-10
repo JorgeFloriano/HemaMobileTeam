@@ -29,6 +29,7 @@ export interface Order {
   req_date: string;
   req_time: string;
   finished: boolean;
+  is_emergency: boolean;
   equipment?: string;
   type: {
     id: string;
