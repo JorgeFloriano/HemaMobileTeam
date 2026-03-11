@@ -45,7 +45,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
           {order.id} - {order.client.name}
         </Text>
 
-        <StatusBadge finished={order.finished} isEmergency={order.is_emergency} />
+        <StatusBadge finished={order.finished} isEmergency={order.is_emergency ?? false} />
       </View>
 
       <Text style={styles.description} numberOfLines={2}>

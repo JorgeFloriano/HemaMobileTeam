@@ -81,7 +81,7 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
 
         <StatusBadge 
           finished={order.finished} 
-          isEmergency={order.is_emergency} 
+          isEmergency={order.is_emergency ?? false} 
         />
       </View>
 

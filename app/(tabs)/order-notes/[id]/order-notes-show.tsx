@@ -29,9 +29,7 @@ const OrderDetailScreen = () => {
       } else {
         setLoading(true);
       }
-      const response = await api.get<{ order: Order }>(
-        `/notes/show/${id}`
-      );
+      const response = await api.get<{ order: Order }>(`/notes/show/${id}`);
       setOrder(response.data.order);
       console.log("Order loaded:", response.data.order);
     } catch (error: any) {
@@ -85,12 +83,40 @@ const OrderDetailScreen = () => {
     return `${formattedDate} às ${formattedTime}`;
   };
 
-  // Get status display
-  const getStatusInfo = (finished: boolean) => {
+  const getStatusInfo = (finished: boolean, isEmergency: boolean) => {
+    // 1. Emergência e NÃO finalizada
+    if (isEmergency && !finished) {
+      return {
+        text: "Emergencial",
+        color: "#FFFFFF", // Texto branco para contraste
+        bgColor: "#ff2c07", // Vermelho sólido
+      };
+    }
+
+    // 2. Emergência e JÁ finalizada
+    if (isEmergency && finished) {
+      return {
+        text: "Emerg. Finalizada",
+        color: "#4CAF50", // Verde
+        bgColor: "#E8F5E8", // Fundo verde claro
+        dotColor: "#ff2c07", // Indicador extra de que foi uma emergência
+      };
+    }
+
+    // 3. Finalizada Normal
+    if (finished) {
+      return {
+        text: "Finalizada",
+        color: "#4CAF50",
+        bgColor: "#E8F5E8",
+      };
+    }
+
+    // 4. Pendente Normal
     return {
-      text: finished ? "Finalizada" : "Pendente",
-      color: finished ? "#4CAF50" : "#FF9800",
-      bgColor: finished ? "#E8F5E8" : "#FFF3E0",
+      text: "Pendente",
+      color: "#FF9800",
+      bgColor: "#FFF3E0",
     };
   };
 
@@ -117,7 +143,7 @@ const OrderDetailScreen = () => {
     );
   }
 
-  const statusInfo = getStatusInfo(order.finished);
+  const statusInfo = getStatusInfo(order.finished, order.is_emergency ?? false);
 
   return (
     <View style={styles.container}>
