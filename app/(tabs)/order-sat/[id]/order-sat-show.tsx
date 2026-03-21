@@ -2,11 +2,15 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  ScrollView,
   Alert,
+  Modal,
+  Platform,
   StyleSheet,
-  ActivityIndicator,
+  ScrollView,
   RefreshControl,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import api from "@/src/services/api";
@@ -16,6 +20,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Adicione o import
+import TextInput from "@/src/components/TextInput";
 
 const OrderDetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -24,6 +29,9 @@ const OrderDetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [equipmentModalVisible, setEquipmentModalVisible] = useState(false);
+  const [equipmentText, setEquipmentText] = useState("");
+  const [savingEq, setSavingEq] = useState(false);
 
   // Adicione estados para as novas permissões que precisar
   const [permissions, setPermissions] = useState({
@@ -219,6 +227,40 @@ const OrderDetailScreen = () => {
     );
   };
 
+  const handleEditEquipment = () => {
+    setEquipmentText(order?.equipment || "");
+    setEquipmentModalVisible(true);
+  };
+
+  const handleSaveEquipment = async () => {
+    if (!order) return;
+    setSavingEq(true);
+    try {
+      const response = await api.post(
+        `/sat/orders/${order.id}/update-equipment`,
+        {
+          equipment: equipmentText,
+        },
+      );
+
+      if (response.data.success) {
+        Alert.alert("Sucesso", response.data.message);
+        setEquipmentModalVisible(false);
+        loadOrder(); // Reload data
+      } else {
+        Alert.alert(
+          "Erro",
+          response.data.message || "Falha ao atualizar equipamento",
+        );
+      }
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Erro", "Falha na conexão ao atualizar equipamento");
+    } finally {
+      setSavingEq(false);
+    }
+  };
+
   const formatDate = (date: string) => {
     const [year, month, day] = date.split("-");
     return `${day}/${month}/${year}`;
@@ -336,6 +378,17 @@ const OrderDetailScreen = () => {
           </View>
 
           <View style={styles.headerTop}>
+            {!order?.finished && permissions?.sats && (
+              <Button
+                variant="icon"
+                icon={<FontAwesome6 name="pen" size={12} color="#1b0363ff" />}
+                title="Editar Equipamento"
+                textStyle={styles.reopenBtnText}
+                onPress={handleEditEquipment}
+                disabled={loading}
+              />
+            )}
+
             {!order?.finished &&
               permissions?.sats &&
               order?.notes?.length === 0 && (
@@ -510,6 +563,47 @@ const OrderDetailScreen = () => {
           </View>
         )}
       </ScrollView>
+
+      {/* MODAL DE EDIÇÃO DE EQUIPAMENTO */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={equipmentModalVisible}
+        onRequestClose={() => setEquipmentModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.modalOverlay}
+        >
+          <View style={[styles.modalContent, { maxHeight: "auto" }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Editar Equipamento</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setEquipmentModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ padding: 16 }}>
+              <TextInput
+                value={equipmentText}
+                onChangeText={setEquipmentText}
+                placeholder="Descrição do equipamento"
+                maxLength={70}
+                label="Descrição"
+                multiline={true}
+              />
+              <Button
+                title={savingEq ? "Salvando..." : "Salvar"}
+                onPress={handleSaveEquipment}
+                disabled={savingEq}
+                style={{ marginTop: 10 }}
+              />
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 };
@@ -682,6 +776,39 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 14,
     fontWeight: "700",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    width: "90%",
+    overflow: "hidden",
+  },
+  modalHeader: {
+    padding: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  closeButton: {
+    padding: 4,
+  },
+  closeButtonText: {
+    fontSize: 28,
+    color: "#6b7280",
+    lineHeight: 28,
   },
 });
 

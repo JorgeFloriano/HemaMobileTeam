@@ -79,9 +79,9 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
           {order.id} - {order.client.name}
         </Text>
 
-        <StatusBadge 
-          finished={order.finished} 
-          isEmergency={order.is_emergency ?? false} 
+        <StatusBadge
+          finished={order.finished}
+          isEmergency={order.is_emergency ?? false}
         />
       </View>
 
@@ -114,7 +114,18 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
         {order.equipment && (
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Equipamento:</Text>
-            <Text style={styles.detailValue}>{order.equipment}</Text>
+            <Text
+              style={[
+                styles.detailValue,
+                {
+                  flex: 1,
+                  paddingLeft: 10,
+                  textAlign: "right",
+                },
+              ]}
+            >
+              {order.equipment}
+            </Text>
           </View>
         )}
         {/* ÁREA DO TÉCNICO - COM FUNÇÃO DE ALTERAR */}

@@ -1,5 +1,13 @@
 import React from "react";
-import { Text, TextStyle, TouchableOpacity, ViewStyle, StyleSheet, StyleProp, View } from "react-native";
+import {
+  Text,
+  TextStyle,
+  TouchableOpacity,
+  ViewStyle,
+  StyleSheet,
+  StyleProp,
+  View,
+} from "react-native";
 
 interface ButtonProps {
   title: string | React.ReactNode;
@@ -20,7 +28,6 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
-  
   // Estilos base por variante
   const getVariantStyle = () => {
     switch (variant) {
@@ -45,18 +52,22 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <TouchableOpacity
       style={[
-        styles.baseButton, 
-        getVariantStyle(), 
-        style, 
-        disabled && styles.disabled
+        styles.baseButton,
+        getVariantStyle(),
+        style,
+        disabled && styles.disabled,
       ]}
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7} // Feedback visual nativo
     >
       <View style={styles.content}>
-        {icon && <View style={styles.iconContainer}>{icon}</View>}
-        
+        {icon && (
+          <View style={[styles.iconContainer, !title && { marginRight: 0 }]}>
+            {icon}
+          </View>
+        )}
+
         {/* Verifica se title é string para aplicar estilo, ou se é componente */}
         {typeof title === "string" ? (
           <Text style={[getTextStyle(), textStyle]}>{title}</Text>
