@@ -112,21 +112,14 @@ const SupervisorOrderCard: React.FC<SupervisorOrderCardProps> = ({
         </View>
 
         {order.equipment && (
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Equipamento:</Text>
-            <Text
-              style={[
-                styles.detailValue,
-                {
-                  flex: 1,
-                  paddingLeft: 10,
-                  textAlign: "right",
-                },
-              ]}
-            >
+          <>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailEquipmentLabel}>Equipamento:</Text>
+            </View>
+            <Text style={styles.description} numberOfLines={2}>
               {order.equipment}
             </Text>
-          </View>
+          </>
         )}
         {/* ÁREA DO TÉCNICO - COM FUNÇÃO DE ALTERAR */}
         <View style={styles.tecActionRow}>
@@ -305,6 +298,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 6,
   },
+
+  detailEquipmentLabel: {
+    fontSize: 13,
+    color: "#999",
+    fontWeight: "600",
+  },
+
   selectButton: {
     backgroundColor: "#f8f9fa",
     borderWidth: 1,

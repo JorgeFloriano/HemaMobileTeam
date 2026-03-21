@@ -200,10 +200,12 @@ const OrderDetailScreen = () => {
           </View>
 
           {order.equipment && (
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Equipamento:</Text>
-              <Text style={styles.detailValue}>{order.equipment}</Text>
-            </View>
+            <>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Equipamento:</Text>
+              </View>
+              <Text style={styles.description}>{order.equipment}</Text>
+            </>
           )}
 
           <View style={styles.detailRow}>

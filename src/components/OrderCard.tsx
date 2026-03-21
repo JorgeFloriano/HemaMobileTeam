@@ -15,7 +15,6 @@ const OrderCard: React.FC<OrderCardProps> = ({
   onPress,
   emergencyOrderId: dbEmergencyId,
 }) => {
-  
   // ... restante das suas funções formatDate e formatDateTime
   const formatDate = (date: string) => {
     const [year, month, day] = date.split("-");
@@ -45,7 +44,10 @@ const OrderCard: React.FC<OrderCardProps> = ({
           {order.id} - {order.client.name}
         </Text>
 
-        <StatusBadge finished={order.finished} isEmergency={order.is_emergency ?? false} />
+        <StatusBadge
+          finished={order.finished}
+          isEmergency={order.is_emergency ?? false}
+        />
       </View>
 
       <Text style={styles.description} numberOfLines={2}>
@@ -71,10 +73,14 @@ const OrderCard: React.FC<OrderCardProps> = ({
         </View>
 
         {order.equipment && (
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Equipamento:</Text>
-            <Text style={styles.detailValue}>{order.equipment}</Text>
-          </View>
+          <>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailEquipmentLabel}>Equipamento:</Text>
+            </View>
+            <Text style={styles.description} numberOfLines={2}>
+              {order.equipment}
+            </Text>
+          </>
         )}
       </View>
     </TouchableOpacity>
@@ -134,6 +140,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#999",
     fontWeight: "500",
+  },
+
+  detailEquipmentLabel: {
+    fontSize: 13,
+    color: "#999",
+    fontWeight: "600",
   },
   detailValue: {
     fontSize: 14,
